@@ -1,0 +1,90 @@
+import { Bell, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+
+interface FooterProps {
+  onNavigate: (page: string) => void;
+}
+
+export function Footer({ onNavigate }: FooterProps) {
+  return (
+    <footer className="bg-[#0f172a] text-white mt-16">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Bell className="h-6 w-6" />
+              <h3 className="text-lg">Funeral Notices</h3>
+            </div>
+            <p className="text-slate-300 text-sm mb-4">
+              Honoring memories and celebrating the lives of loved ones with dignity and respect.
+            </p>
+            <div className="flex gap-3">
+              <a href="#" className="hover:text-slate-300 transition-colors">
+                <Facebook className="h-5 w-5" />
+              </a>
+              <a href="#" className="hover:text-slate-300 transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="#" className="hover:text-slate-300 transition-colors">
+                <Instagram className="h-5 w-5" />
+              </a>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="mb-4">Quick Links</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li>
+                <button onClick={() => onNavigate("browse")} className="hover:text-white transition-colors">
+                  Browse Notices
+                </button>
+              </li>
+              <li>
+                <button onClick={() => onNavigate("place")} className="hover:text-white transition-colors">
+                  Place a Notice
+                </button>
+              </li>
+              <li><a href="#" className="hover:text-white transition-colors">Tributes & Memories</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Funeral Directors</a></li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="mb-4">Support</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">Grief Support</a></li>
+              <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
+              <li>
+                <button onClick={() => onNavigate("about")} className="hover:text-white transition-colors">
+                  Contact Us
+                </button>
+              </li>
+            </ul>
+          </div>
+          
+          <div>
+            <h4 className="mb-4">Contact</h4>
+            <ul className="space-y-3 text-sm text-slate-300">
+              <li className="flex items-start gap-2">
+                <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
+                <span>0800 123 4567</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
+                <span>info@funeralnotices.com</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
+                <span>123 Memorial Way<br />London, UK</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
+          <p>&copy; 2024 Funeral Notices. All rights reserved. | <a href="#" className="hover:text-white">Privacy Policy</a> | <a href="#" className="hover:text-white">Terms of Service</a></p>
+        </div>
+      </div>
+    </footer>
+  );
+}
