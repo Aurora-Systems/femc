@@ -8,6 +8,7 @@ import { BrowseNotices } from "./components/BrowseNotices";
 import { PlaceNotice } from "./components/PlaceNotice";
 import { Services } from "./components/Services";
 import { About } from "./components/About";
+import { Advertisements } from "./components/Advertisements";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>("home");
@@ -21,7 +22,9 @@ export default function App() {
       case "services":
         return <Services />;
       case "about":
-        return <About />;
+        return <About onNavigate={setCurrentPage} />;
+      case "advertise":
+        return <Advertisements />;
       default:
         return (
           <>

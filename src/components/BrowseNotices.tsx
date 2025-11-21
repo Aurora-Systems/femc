@@ -1,8 +1,8 @@
-import { Search, Calendar, MapPin, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Select } from "./ui/select";
 import { NoticeCard } from "./NoticeCard";
+import { AdSection } from "./AdSection";
 
 const allNotices = [
   {
@@ -116,25 +116,11 @@ export function BrowseNotices() {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-            <div className="relative">
+          <div className="flex gap-4">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
               <Input 
                 placeholder="Search by name" 
-                className="pl-10 border-slate-300"
-              />
-            </div>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input 
-                placeholder="Location" 
-                className="pl-10 border-slate-300"
-              />
-            </div>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-              <Input 
-                type="date" 
                 className="pl-10 border-slate-300"
               />
             </div>
@@ -143,24 +129,32 @@ export function BrowseNotices() {
               Search
             </Button>
           </div>
-          
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Filter className="h-4 w-4" />
-            <span>Filter by:</span>
-            <Button variant="outline" size="sm">Most Recent</Button>
-            <Button variant="outline" size="sm">A-Z</Button>
-            <Button variant="outline" size="sm">Location</Button>
-          </div>
         </div>
 
         <div className="mb-4 text-sm text-slate-600">
           Showing {allNotices.length} notices
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {allNotices.map((notice) => (
-            <NoticeCard key={notice.id} notice={notice} />
-          ))}
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {allNotices.slice(0, 6).map((notice) => (
+                <NoticeCard key={notice.id} notice={notice} />
+              ))}
+            </div>
+            
+            <AdSection variant="inline" />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              {allNotices.slice(6).map((notice) => (
+                <NoticeCard key={notice.id} notice={notice} />
+              ))}
+            </div>
+          </div>
+          
+          <aside className="lg:w-80 flex-shrink-0">
+            <AdSection variant="sidebar" />
+          </aside>
         </div>
       </div>
     </div>

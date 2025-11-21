@@ -1,4 +1,4 @@
-import { Search, Calendar, MapPin } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -12,26 +12,11 @@ export function SearchSection() {
             <h3 className="text-xl mb-4 text-[#0f172a]">
               Search Funeral Notices
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
+            <div className="flex gap-4">
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Name"
-                  className="pl-10 border-slate-300"
-                />
-              </div>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Location"
-                  className="pl-10 border-slate-300"
-                />
-              </div>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  type="date"
-                  placeholder="Date"
+                  placeholder="Search by name"
                   className="pl-10 border-slate-300"
                 />
               </div>

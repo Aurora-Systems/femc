@@ -1,4 +1,5 @@
 import { NoticeCard } from "./NoticeCard";
+import { AdSection } from "./AdSection";
 
 const mockNotices = [
   {
@@ -81,10 +82,18 @@ export function NoticesSection() {
           <a href="#" className="text-[#0f172a] hover:underline">View All →</a>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockNotices.map((notice) => (
-            <NoticeCard key={notice.id} notice={notice} />
-          ))}
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {mockNotices.map((notice) => (
+                <NoticeCard key={notice.id} notice={notice} />
+              ))}
+            </div>
+          </div>
+          
+          <aside className="lg:w-80 flex-shrink-0">
+            <AdSection variant="sidebar" />
+          </aside>
         </div>
       </div>
     </section>

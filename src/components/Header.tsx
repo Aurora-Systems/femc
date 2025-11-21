@@ -24,10 +24,10 @@ export function Header({ onNavigate, currentPage }: HeaderProps) {
           
           <nav className="hidden md:flex items-center gap-6">
             <button 
-              onClick={() => onNavigate("browse")} 
-              className={`hover:text-slate-300 transition-colors ${currentPage === "browse" ? "text-slate-300" : ""}`}
+              onClick={() => onNavigate("about")} 
+              className={`hover:text-slate-300 transition-colors ${currentPage === "about" ? "text-slate-300" : ""}`}
             >
-              Browse Notices
+            Home
             </button>
             <button 
               onClick={() => onNavigate("place")} 
@@ -36,16 +36,16 @@ export function Header({ onNavigate, currentPage }: HeaderProps) {
               Place a Notice
             </button>
             <button 
+              onClick={() => onNavigate("browse")} 
+              className={`hover:text-slate-300 transition-colors ${currentPage === "browse" ? "text-slate-300" : ""}`}
+            >
+              Browse Notices
+            </button>
+            <button 
               onClick={() => onNavigate("services")} 
               className={`hover:text-slate-300 transition-colors ${currentPage === "services" ? "text-slate-300" : ""}`}
             >
               Services
-            </button>
-            <button 
-              onClick={() => onNavigate("about")} 
-              className={`hover:text-slate-300 transition-colors ${currentPage === "about" ? "text-slate-300" : ""}`}
-            >
-              About
             </button>
           </nav>
 
