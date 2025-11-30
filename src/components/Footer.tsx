@@ -1,10 +1,12 @@
+import React from "react";
 import { Bell, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-interface FooterProps {
-  onNavigate: (page: string) => void;
-}
 
-export function Footer({ onNavigate }: FooterProps) {
+
+export function Footer() {
+  const navigate = useNavigate();
+ 
   return (
     <footer className="bg-[#0f172a] text-white mt-16">
       <div className="container mx-auto px-4 py-12">
@@ -34,22 +36,22 @@ export function Footer({ onNavigate }: FooterProps) {
             <h4 className="mb-4">Quick Links</h4>
             <ul className="space-y-2 text-sm text-slate-300">
               <li>
-                <button onClick={() => onNavigate("about")} className="hover:text-white transition-colors">
+                <button onClick={() => navigate("about")} className="hover:text-white transition-colors">
                   About
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("place")} className="hover:text-white transition-colors">
+                <button onClick={() => navigate("place")} className="hover:text-white transition-colors">
                   Place a Notice
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("browse")} className="hover:text-white transition-colors">
+                <button onClick={() => navigate("browse")} className="hover:text-white transition-colors">
                   Browse Notices
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate("services")} className="hover:text-white transition-colors">
+                <button onClick={() => navigate("services")} className="hover:text-white transition-colors">
                   Services
                 </button>
               </li>
@@ -61,7 +63,7 @@ export function Footer({ onNavigate }: FooterProps) {
             <ul className="space-y-2 text-sm text-slate-300">
               <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
               <li>
-                <button onClick={() => onNavigate("advertise")} className="hover:text-white transition-colors">
+                <button onClick={() => navigate("advertise")} className="hover:text-white transition-colors">
                   Advertise With Us
                 </button>
               </li>

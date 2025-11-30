@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Heart,
   Users,
@@ -141,7 +142,7 @@ export function About({ onNavigate }: AboutProps) {
             </h1>
             <p className="text-xl text-slate-200">
               Honoring memories and celebrating lives with
-              dignity, respect, and compassion since 2005
+              dignity, respect
             </p>
           </div>
         </div>
