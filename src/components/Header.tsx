@@ -90,14 +90,16 @@ export function Header() {
                 <Phone className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>
-              <Button variant="outline" size="sm" className="bg-white border-white text-black hover:bg-[#0f172a] hover:text-white">
+              <a href="/auth"><Button variant="outline" size="sm"
+                              onClick={() => navigate("/auth")}
+ 
+              className="bg-white border-white text-black hover:bg-[#0f172a] hover:text-white">
                 <User className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Sign In</span>
-              </Button>
+              </Button></a>
               <button
                 type="button"
                 className="menu-button text-white hover:bg-slate-700 p-2 rounded-md transition-colors"
-                onClick={() => setIsMenuOpen(true)}
                 aria-label="Open menu"
               >
                 <Menu className="h-6 w-6" />
