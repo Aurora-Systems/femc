@@ -190,3 +190,19 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Mobile menu button - only visible on mobile devices */
+.menu-button {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .menu-button {
+    display: none !important;
+  }
+  
+  /* Hide mobile menu overlay on desktop */
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+}

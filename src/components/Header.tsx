@@ -83,14 +83,8 @@ export function Header() {
 
             <div className="flex items-center gap-3">
               {/* Mobile Menu Button - Only visible on mobile (hidden on md and up) */}
-              <button
-                type="button"
-                className="menu-button text-white hover:bg-slate-700 p-2 rounded-md transition-colors block md:hidden"
-                onClick={() => setIsMenuOpen(true)}
-                aria-label="Open menu"
-              >
-                <Menu className="h-6 w-6" />
-              </button>
+            
+
 
               <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
                 <Phone className="h-4 w-4 mr-2" />
@@ -100,6 +94,14 @@ export function Header() {
                 <User className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Sign In</span>
               </Button>
+              <button
+                type="button"
+                className="menu-button text-white hover:bg-slate-700 p-2 rounded-md transition-colors"
+                onClick={() => setIsMenuOpen(true)}
+                aria-label="Open menu"
+              >
+                <Menu className="h-6 w-6" />
+              </button>
             </div>
           </div>
         </div>
@@ -108,7 +110,7 @@ export function Header() {
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
         <div 
-          className="fixed inset-0 z-50 md:hidden"
+          className="mobile-menu-overlay fixed inset-0 z-50"
           onClick={() => setIsMenuOpen(false)}
         >
           {/* Backdrop */}
