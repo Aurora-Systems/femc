@@ -1,13 +1,16 @@
-import { useState } from "react";
-import { Upload, Info, Eye, FileImage } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Upload, Eye, FileImage } from "lucide-react";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Label } from "./ui/label";
 import { NoticePreview } from "./NoticePreview";
+import { useNavigate } from "react-router-dom";
+import db from "../init/db";
 
 export function PlaceNotice() {
+  const navigate = useNavigate();
   const [noticeType, setNoticeType] = useState("death");
   const [accountType, setAccountType] = useState("individual");
   const [showPreview, setShowPreview] = useState(false);
@@ -23,7 +26,7 @@ export function PlaceNotice() {
     photo: "",
     noticeType: "Death Notice",
   });
-
+  const [isOnboarded, setIsOnboarded] = useState(false);
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -52,6 +55,28 @@ export function PlaceNotice() {
   const price =
     accountType === "individual" ? "$9.99" : "$19.99";
   const isIndividual = accountType === "individual";
+
+  const check_onboarded=async()=>{
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      navigate("/auth");
+      return;
+    }
+    const { data: profile } = await db
+      .from("users")
+      .select("*")
+      .eq("user_id", session.user.id)
+      .single();
+    if (!profile) {
+      navigate("/onboard");
+      return;
+    }
+    setIsOnboarded(true);
+  }
+
+  useEffect(()=>{
+    check_onboarded();
+  },[])
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -552,3 +577,4 @@ export function PlaceNotice() {
     </div>
   );
 }
+
