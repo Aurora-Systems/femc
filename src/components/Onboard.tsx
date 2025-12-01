@@ -77,6 +77,32 @@ export default function Onboard() {
         return;
       }
 
+      // Check if user already exists in database
+      const { data: existingUser, error: checkError } = await db
+        .from("users")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
+
+      if (existingUser) {
+        toast.error("User profile already exists. Redirecting to dashboard...");
+        setLoading(false);
+        navigate("/dashboard");
+        return;
+      }
+
+      // If there's an error and it's not a "not found" error, handle it
+      if (checkError) {
+        // PGRST116 is PostgREST "not found" error code, which is expected if user doesn't exist
+        // Other error codes indicate actual problems
+        if (checkError.code !== "PGRST116") {
+          toast.error(checkError.message || "Failed to check user existence");
+          setLoading(false);
+          return;
+        }
+        // If it's a "not found" error, we can proceed with creating the user
+      }
+
       const userData: User = {
         user_id: session.user.id,
         ...formData,
@@ -189,7 +215,7 @@ export default function Onboard() {
                   <Input
                     id="organization_name"
                     value={formData.organization_name || ""}
-                    onCheckedChange={(e) =>
+                    onChange={(e) =>
                       setFormData({
                         ...formData,
                         organization_name: e.target.value,
