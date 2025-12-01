@@ -4,7 +4,6 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Switch } from "./ui/switch";
 import db from "../init/db";
 import { User } from "../schemas/userSchema";
 import { toast } from "sonner";
