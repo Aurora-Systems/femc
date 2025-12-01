@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Bell, Phone, User, Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import db from "../init/db";
 
 
 
 export function Header() {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isOnboarded, setIsOnboarded] = useState(false);
+  const [isChecking, setIsChecking] = useState(true);
   
   const navItems = [
     { label: "Home", path: "" },
@@ -53,6 +56,45 @@ export function Header() {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, [isMenuOpen]);
+
+  // Check if user is onboarded
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      try {
+        const { data: { session } } = await db.auth.getSession();
+        
+        if (!session) {
+          setIsOnboarded(false);
+          setIsChecking(false);
+          return;
+        }
+
+        // Check if user has a profile
+        const { data: profile } = await db
+          .from("users")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
+
+        setIsOnboarded(!!profile);
+      } catch (error) {
+        setIsOnboarded(false);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+
+    checkOnboardingStatus();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = db.auth.onAuthStateChange(() => {
+      checkOnboardingStatus();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   
   return (
     <>
@@ -90,13 +132,17 @@ export function Header() {
                 <Phone className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>
-              <a href="/auth"><Button variant="outline" size="sm"
-                              onClick={() => navigate("/auth")}
- 
-              className="bg-white border-white text-black hover:bg-[#0f172a] hover:text-white">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate(isOnboarded ? "/dashboard" : "/auth")}
+                className="bg-white border-white text-black hover:bg-[#0f172a] hover:text-white"
+              >
                 <User className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Sign In</span>
-              </Button></a>
+                <span className="hidden sm:inline">
+                  {isChecking ? "..." : isOnboarded ? "Dashboard" : "Sign In"}
+                </span>
+              </Button>
               <button
                 type="button"
                 className="menu-button text-white hover:bg-slate-700 p-2 rounded-md transition-colors"
