@@ -1,0 +1,16 @@
+interface Notice {
+    notice_id: string,
+    user_id: string,
+    first_name: string,
+    middle_name: string,
+    last_name: string,
+    location: string,
+    dob: string,
+    dop: string|null,
+    event_date: string,
+    event_details: string,
+    obituary: string|null,
+    announcemnet:string|null,
+    photo_id: string,
+    relationship:string,
+}
