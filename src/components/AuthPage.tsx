@@ -49,10 +49,7 @@ export default function AuthenticationPage() {
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.length !== 6) {
-      toast.error("Please enter the complete 6-digit OTP");
-      return;
-    }
+    
 
     setLoading(true);
     try {
@@ -90,7 +87,9 @@ export default function AuthenticationPage() {
     }
   };
 
-  const handleBackToEmail = () => {
+  const handleBackToEmail = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     setLoading(false);
     setStep("email");
     setOtp("");
@@ -98,7 +97,7 @@ export default function AuthenticationPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-4">
-      <Card className="  shadow-2xl border-0 bg-white/95 backdrop-blur-sm" >
+      <Card className="  shadow-2xl border-0 bg-white/95 backdrop-blur-sm card-auth" >
         <CardHeader className="space-y-4 pb-6">
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-3">
@@ -116,13 +115,13 @@ export default function AuthenticationPage() {
             <CardDescription className="">
               {step === "email"
                 ? "Enter your email to continue"
-                : "Enter the 6-digit code sent to your email"}
+                : "Enter the otp code sent to your email"}
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent className="space-y-6 text-center">
           {step === "email" ? (
-            <form onSubmit={handleSendOTP} className="space-y-5">
+            <form key="email-form" onSubmit={handleSendOTP} className="space-y-5">
               <div className="space-y-2 text-center">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
@@ -135,7 +134,7 @@ export default function AuthenticationPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="h-11 text-base text-center"
+                  className="h-11 text-base w-full"
                 />
               </div>
               <div className="pt-2">
@@ -159,7 +158,6 @@ export default function AuthenticationPage() {
                     <Input
                     className="text-center"
                     type="text"
-                      maxLength={6}
                       value={otp}
                       onChange={(e:any) => setOtp(e.target.value)}
                       disabled={loading}
@@ -184,7 +182,7 @@ export default function AuthenticationPage() {
                 <Button
                   type="submit"
                   className="flex-1 h-11 font-medium"
-                  disabled={loading || otp.length !== 6}
+                  disabled={loading }
                 >
                   {loading ? "Verifying..." : "Verify Code"}
                 </Button>

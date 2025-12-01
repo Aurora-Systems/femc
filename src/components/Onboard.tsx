@@ -177,6 +177,13 @@ export default function Onboard() {
                   }
                   disabled={loading}
                 />
+                <input type="checkbox" className="mr-2 " 
+                checked={formData.organization}
+                 onCheckedChange={(checked) =>
+                  setFormData({ ...formData, organization: checked })
+                }
+                disabled={loading}
+                label="I am representing an organization" />
                 <Label htmlFor="organization" className="cursor-pointer">
                   I am representing an organization
                 </Label>

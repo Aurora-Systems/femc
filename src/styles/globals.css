@@ -208,5 +208,14 @@ html {
 }
 
 .card-auth{
-  
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .card-auth{
+    width: 90vw !important;
+    max-width: 90vw;
+  }
 }
