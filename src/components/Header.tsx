@@ -101,6 +101,7 @@ export function Header() {
                 type="button"
                 className="menu-button text-white hover:bg-slate-700 p-2 rounded-md transition-colors"
                 aria-label="Open menu"
+                onClick={() => setIsMenuOpen(true)}
               >
                 <Menu className="h-6 w-6" />
               </button>

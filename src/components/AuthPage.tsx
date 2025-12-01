@@ -91,13 +91,14 @@ export default function AuthenticationPage() {
   };
 
   const handleBackToEmail = () => {
+    setLoading(false);
     setStep("email");
     setOtp("");
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-4">
-      <Card className="w-[50vw] shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
+      <Card className="  shadow-2xl border-0 bg-white/95 backdrop-blur-sm" >
         <CardHeader className="space-y-4 pb-6">
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-3">
@@ -112,17 +113,17 @@ export default function AuthenticationPage() {
             <CardTitle className="text-3xl font-bold tracking-tight">
               {step === "email" ? "Welcome" : "Verify Code"}
             </CardTitle>
-            <CardDescription className="text-base">
+            <CardDescription className="">
               {step === "email"
-                ? "Enter your email to receive a one-time password"
+                ? "Enter your email to continue"
                 : "Enter the 6-digit code sent to your email"}
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 text-center">
           {step === "email" ? (
             <form onSubmit={handleSendOTP} className="space-y-5">
-              <div className="space-y-2">
+              <div className="space-y-2 text-center">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email Address
                 </Label>
@@ -134,7 +135,7 @@ export default function AuthenticationPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   disabled={loading}
-                  className="h-11 text-base"
+                  className="h-11 text-base text-center"
                 />
               </div>
               <div className="pt-2">
@@ -155,21 +156,15 @@ export default function AuthenticationPage() {
                     Verification Code
                   </Label>
                   <div className="flex justify-center py-2">
-                    <InputOTP
+                    <Input
+                    className="text-center"
+                    type="text"
                       maxLength={6}
                       value={otp}
-                      onChange={setOtp}
+                      onChange={(e:any) => setOtp(e.target.value)}
                       disabled={loading}
-                    >
-                      <InputOTPGroup>
-                        <InputOTPSlot index={0} />
-                        <InputOTPSlot index={1} />
-                        <InputOTPSlot index={2} />
-                        <InputOTPSlot index={3} />
-                        <InputOTPSlot index={4} />
-                        <InputOTPSlot index={5} />
-                      </InputOTPGroup>
-                    </InputOTP>
+                    />
+                     
                   </div>
                 </div>
                 <p className="text-sm text-center text-muted-foreground">
