@@ -100,6 +100,14 @@ export default function Onboard() {
     }
   };
 
+  const handleOrganizationChange = () => {
+    if(formData.organization) {
+      setFormData({ ...formData, organization:false});
+    } else {
+      setFormData({ ...formData, organization:true });
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-4">
       <div className="max-w-2xl mx-auto">
@@ -168,22 +176,9 @@ export default function Onboard() {
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="organization"
-                  checked={formData.organization}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, organization: checked })
-                  }
-                  disabled={loading}
-                />
-                <input type="checkbox" className="mr-2 " 
-                checked={formData.organization}
-                 onCheckedChange={(checked) =>
-                  setFormData({ ...formData, organization: checked })
-                }
-                disabled={loading}
-                label="I am representing an organization" />
+              <div className="flex items-center space-x-2" onClick={() => handleOrganizationChange()}>
+              <input type="checkbox" checked={formData.organization} className="mr-2 "/>
+              
                 <Label htmlFor="organization" className="cursor-pointer">
                   I am representing an organization
                 </Label>
@@ -195,7 +190,7 @@ export default function Onboard() {
                   <Input
                     id="organization_name"
                     value={formData.organization_name || ""}
-                    onChange={(e) =>
+                    onCheckedChange={(e) =>
                       setFormData({
                         ...formData,
                         organization_name: e.target.value,
