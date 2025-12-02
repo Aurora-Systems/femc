@@ -1,16 +1,18 @@
-interface Notice {
-    notice_id: string,
+export interface Notice {
+    notice_type: "death_notice" | "memorial_service" | "tombstone_unveiling"
     user_id: string,
     first_name: string,
-    middle_name: string,
+    middle_name: string|null,
+    maiden_name: string|null,
+    nickname: string|null,
     last_name: string,
-    location: string,
-    dob: string,
-    dop: string|null,
-    event_date: string,
-    event_details: string,
-    obituary: string|null,
-    announcemnet:string|null,
+    location: string, // location of the event
+    dob: string, // date of birth
+    dop: string|null, // date of passing
+    event_date: string, // event date
+    event_details: string, // event details
+    obituary: string|null, // obituary details
+    announcement:string|null, // announcement details
     photo_id: string,
-    relationship:string,
+    relationship:string, // relationship to the deceased
 }

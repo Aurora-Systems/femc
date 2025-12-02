@@ -1,3 +1,4 @@
+import React from "react";
 import { X } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -5,8 +6,10 @@ import { Card } from "./ui/card";
 interface NoticePreviewProps {
   noticeData: {
     firstName: string;
+    middleName?: string;
+    maidenName?: string;
+    nickname?: string;
     lastName: string;
-    age?: string;
     location: string;
     birthDate?: string;
     passedDate: string;
@@ -16,10 +19,11 @@ interface NoticePreviewProps {
     noticeType: string;
   };
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
+  isSubmitting?: boolean;
 }
 
-export function NoticePreview({ noticeData, onClose, onConfirm }: NoticePreviewProps) {
+export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = false }: NoticePreviewProps) {
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -27,7 +31,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm }: NoticePreviewP
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto min-h-screen">
       <div className="bg-white rounded-lg max-w-2xl w-full my-8">
         <div className="p-6 border-b flex items-center justify-between">
           <h2 className="text-2xl text-[#0f172a]">Preview Your Notice</h2>
@@ -49,7 +53,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm }: NoticePreviewP
               <div className="w-full h-64 bg-slate-200">
                 <img 
                   src={noticeData.photo} 
-                  alt={`${noticeData.firstName} ${noticeData.lastName}`}
+                  alt={`${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -57,8 +61,17 @@ export function NoticePreview({ noticeData, onClose, onConfirm }: NoticePreviewP
             
             <div className="p-6 bg-white">
               <h3 className="text-3xl text-[#0f172a] mb-2">
-                {noticeData.firstName} {noticeData.lastName}
-                {noticeData.age && `, ${noticeData.age}`}
+                {[
+                  noticeData.firstName,
+                  noticeData.middleName,
+                  noticeData.nickname && `"${noticeData.nickname}"`,
+                  noticeData.lastName
+                ].filter(Boolean).join(" ")}
+                {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
+                  <span className="text-xl text-slate-600 font-normal">
+                    {" "}(née {noticeData.maidenName})
+                  </span>
+                )}
               </h3>
               
               <div className="text-slate-600 mb-4">
@@ -102,13 +115,15 @@ export function NoticePreview({ noticeData, onClose, onConfirm }: NoticePreviewP
             <Button 
               onClick={onConfirm}
               className="flex-1 bg-[#0f172a] hover:bg-[#1e3a5f]"
+              disabled={isSubmitting}
             >
-              Confirm & Submit
+              {isSubmitting ? "Submitting..." : "Confirm & Submit"}
             </Button>
             <Button 
               onClick={onClose}
               variant="outline"
               className="flex-1"
+              disabled={isSubmitting}
             >
               Edit Notice
             </Button>

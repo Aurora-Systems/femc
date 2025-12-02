@@ -8,16 +8,21 @@ import { Label } from "./ui/label";
 import { NoticePreview } from "./NoticePreview";
 import { useNavigate } from "react-router-dom";
 import db from "../init/db";
+import { toast } from "sonner";
+import type { Notice } from "../schemas/noticeSchema";
+import {v4} from "uuid";
 
 export function PlaceNotice() {
   const navigate = useNavigate();
-  const [noticeType, setNoticeType] = useState("death");
+  const [noticeType, setNoticeType] = useState<Notice["notice_type"]>("death_notice");
   const [accountType, setAccountType] = useState("individual");
   const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
+    middleName: "",
+    maidenName: "",
     lastName: "",
-    age: "",
+    nickname: "",
     location: "",
     birthDate: "",
     passedDate: "",
@@ -25,16 +30,20 @@ export function PlaceNotice() {
     serviceDetails: "",
     photo: "",
     noticeType: "Death Notice",
+    relationship: "",
   });
   const [isOnboarded, setIsOnboarded] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Get the notice type label
     const noticeTypeLabel =
-      noticeType === "death"
+      noticeType === "death_notice"
         ? "Death Notice"
-        : noticeType === "memorial"
+        : noticeType === "memorial_service"
           ? "Memorial Service"
           : "Tombstone Unveiling";
 
@@ -45,11 +54,151 @@ export function PlaceNotice() {
     setShowPreview(true);
   };
 
-  const handleConfirmSubmit = () => {
-    // Handle actual submission here
-    console.log("Submitting notice:", formData);
-    setShowPreview(false);
-    // Show success message, redirect, etc.
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error("Photo size must be less than 10MB");
+        return;
+      }
+      setPhotoFile(file);
+      // Create a preview URL for the form
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({
+          ...formData,
+          photo: reader.result as string,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadPhoto = async (): Promise<string> => {
+    if (!photoFile) {
+      return "";
+    }
+
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        throw new Error("Not authenticated");
+      }
+
+      // Generate unique filename
+      const fileExt = photoFile.name.split(".").pop();
+      const fileName = `${v4()}.${fileExt}`;
+
+      // Upload to Supabase storage
+      const { data, error } = await db.storage
+        .from("notices")
+        .upload(fileName, photoFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Return filename instead of public URL
+      return fileName;
+    } catch (error: any) {
+      console.error("Error uploading photo:", error);
+      throw new Error(error.message || "Failed to upload photo");
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      // Get user session
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        toast.error("Please log in to submit a notice");
+        navigate("/auth");
+        return;
+      }
+
+      // Validate required fields
+      if (isIndividual) {
+        if (!formData.firstName || !formData.lastName || !formData.location || !formData.passedDate || !formData.obituary) {
+          toast.error("Please fill in all required fields");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Upload photo if provided
+      let photoFileName = "";
+      if (photoFile) {
+        try {
+          photoFileName = await uploadPhoto();
+        } catch (error: any) {
+          toast.error(error.message || "Failed to upload photo");
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
+      // Map form data to schema
+      const noticeData: Notice = {
+        notice_type: noticeType,
+        user_id: session.user.id,
+        first_name: formData.firstName,
+        middle_name: formData.middleName || null,
+        maiden_name: formData.maidenName || null,
+        nickname: formData.nickname || null,
+        last_name: formData.lastName,
+        location: formData.location,
+        dob: formData.birthDate || "",
+        dop: noticeType === "death_notice" ? formData.passedDate : null,
+        event_date: formData.passedDate,
+        event_details: formData.serviceDetails || "",
+        obituary: noticeType === "death_notice" ? formData.obituary : null,
+        announcement: noticeType !== "death_notice" ? formData.obituary : null,
+        photo_id: photoFileName,
+        relationship: formData.relationship || "",
+      };
+
+      // Submit to database
+      const { error } = await db
+        .from("notices")
+        .insert([noticeData]);
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Notice submitted successfully!");
+      setShowPreview(false);
+      
+      // Reset form
+      setFormData({
+        firstName: "",
+        middleName: "",
+        maidenName: "",
+        lastName: "",
+        nickname: "",
+        location: "",
+        birthDate: "",
+        passedDate: "",
+        obituary: "",
+        serviceDetails: "",
+        photo: "",
+        noticeType: "Death Notice",
+        relationship: "",
+      });
+      setPhotoFile(null);
+      
+      // Redirect to dashboard or notices page
+      navigate("/dashboard");
+    } catch (error: any) {
+      console.error("Error submitting notice:", error);
+      toast.error(error.message || "Failed to submit notice. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const price =
@@ -112,9 +261,9 @@ export function PlaceNotice() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <button
                     type="button"
-                    onClick={() => setNoticeType("death")}
+                    onClick={() => setNoticeType("death_notice")}
                     className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      noticeType === "death"
+                      noticeType === "death_notice"
                         ? "border-[#0f172a] bg-slate-50"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
@@ -128,9 +277,9 @@ export function PlaceNotice() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setNoticeType("memorial")}
+                    onClick={() => setNoticeType("memorial_service")}
                     className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      noticeType === "memorial"
+                      noticeType === "memorial_service"
                         ? "border-[#0f172a] bg-slate-50"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
@@ -144,9 +293,9 @@ export function PlaceNotice() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setNoticeType("unveiling")}
+                    onClick={() => setNoticeType("tombstone_unveiling")}
                     className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      noticeType === "unveiling"
+                      noticeType === "tombstone_unveiling"
                         ? "border-[#0f172a] bg-slate-50"
                         : "border-slate-200 hover:border-slate-300"
                     }`}
@@ -263,7 +412,7 @@ export function PlaceNotice() {
                   </p>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
                     <Label htmlFor="firstName">
                       First Name *
@@ -280,6 +429,23 @@ export function PlaceNotice() {
                         })
                       }
                       required={isIndividual}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="middleName">
+                      Middle Name
+                    </Label>
+                    <Input
+                      id="middleName"
+                      placeholder="Enter middle name"
+                      className="mt-1"
+                      value={formData.middleName}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          middleName: e.target.value,
+                        })
+                      }
                     />
                   </div>
                   <div>
@@ -304,21 +470,42 @@ export function PlaceNotice() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div>
-                    <Label htmlFor="age">Age</Label>
+                    <Label htmlFor="maidenName">
+                      Maiden Name
+                    </Label>
                     <Input
-                      id="age"
-                      type="number"
-                      placeholder="Age"
+                      id="maidenName"
+                      placeholder="Enter maiden name"
                       className="mt-1"
-                      value={formData.age}
+                      value={formData.maidenName}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          age: e.target.value,
+                          maidenName: e.target.value,
                         })
                       }
                     />
                   </div>
+                  <div>
+                    <Label htmlFor="nickname">
+                      Nickname
+                    </Label>
+                    <Input
+                      id="nickname"
+                      placeholder="Enter nickname (optional)"
+                      className="mt-1"
+                      value={formData.nickname}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          nickname: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div>
                     <Label htmlFor="location">Location *</Label>
                     <Input
@@ -333,6 +520,23 @@ export function PlaceNotice() {
                         })
                       }
                       required={isIndividual}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="relationship">
+                      Relationship
+                    </Label>
+                    <Input
+                      id="relationship"
+                      placeholder="e.g. Son, Daughter, Funeral Director"
+                      className="mt-1"
+                      value={formData.relationship}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          relationship: e.target.value,
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -357,7 +561,7 @@ export function PlaceNotice() {
                   </div>
                   <div>
                     <Label htmlFor="passedDate">
-                      {noticeType === "death"
+                      {noticeType === "death_notice"
                         ? "Date of Passing *"
                         : "Event Date *"}
                     </Label>
@@ -379,14 +583,14 @@ export function PlaceNotice() {
 
                 <div className="mt-6">
                   <Label htmlFor="obituary">
-                    {noticeType === "death"
+                    {noticeType === "death_notice"
                       ? "Obituary / Tribute *"
                       : "Announcement Details *"}
                   </Label>
                   <Textarea
                     id="obituary"
                     placeholder={
-                      noticeType === "death"
+                      noticeType === "death_notice"
                         ? "Share memories and details about your loved one..."
                         : "Provide details about the event..."
                     }
@@ -407,7 +611,7 @@ export function PlaceNotice() {
 
                 <div className="mt-6">
                   <Label htmlFor="serviceDetails">
-                    {noticeType === "death"
+                    {noticeType === "death_notice"
                       ? "Funeral Service Details"
                       : "Event Details"}
                   </Label>
@@ -430,7 +634,10 @@ export function PlaceNotice() {
                     <Label htmlFor="photo">
                       Upload Photo (Optional)
                     </Label>
-                    <div className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-[#0f172a] transition-colors cursor-pointer">
+                    <label
+                      htmlFor="photo"
+                      className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-[#0f172a] transition-colors cursor-pointer block"
+                    >
                       <Upload className="h-10 w-10 text-slate-400 mx-auto mb-2" />
                       <p className="text-sm text-slate-600 mb-1">
                         Click to upload or drag and drop
@@ -438,76 +645,37 @@ export function PlaceNotice() {
                       <p className="text-xs text-slate-500">
                         PNG, JPG up to 10MB
                       </p>
-                    </div>
+                      {photoFile && (
+                        <p className="text-xs text-green-600 mt-2">
+                          Selected: {photoFile.name}
+                        </p>
+                      )}
+                    </label>
+                    <input
+                      id="photo"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={handlePhotoChange}
+                      className="hidden"
+                    />
                   </div>
                 )}
               </div>
 
-              <div className="border-t pt-6">
-                <h3 className="text-lg text-[#0f172a] mb-4">
-                  Your Contact Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="contactName">
-                      Your Name *
-                    </Label>
-                    <Input
-                      id="contactName"
-                      placeholder="Your full name"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contactEmail">
-                      Email Address *
-                    </Label>
-                    <Input
-                      id="contactEmail"
-                      type="email"
-                      placeholder="your@email.com"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="contactPhone">
-                      Phone Number *
-                    </Label>
-                    <Input
-                      id="contactPhone"
-                      type="tel"
-                      placeholder="Phone number"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="relationship">
-                      Relationship
-                    </Label>
-                    <Input
-                      id="relationship"
-                      placeholder="e.g. Son, Daughter, Funeral Director"
-                      className="mt-1"
-                    />
-                  </div>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-6">
+                <div className="flex flex-col sm:flex-row gap-4 flex-1">
+                  <Button
+                    type="submit"
+                    className="bg-[#0f172a] hover:bg-[#1e3a5f] px-8"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview Notice
+                  </Button>
+                  <Button type="button" variant="outline">
+                    Save as Draft
+                  </Button>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-4 pt-6">
-                <Button
-                  type="submit"
-                  className="bg-[#0f172a] hover:bg-[#1e3a5f] px-8"
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview Notice
-                </Button>
-                <Button type="button" variant="outline">
-                  Save as Draft
-                </Button>
-                <div className="ml-auto text-right">
+                <div className="text-center sm:text-right sm:ml-auto border-t sm:border-t-0 pt-4 sm:pt-0">
                   <p className="text-sm text-slate-600">
                     Price:
                   </p>
@@ -520,50 +688,7 @@ export function PlaceNotice() {
           </div>
         </Card>
 
-        {/* Storage & Info Section */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg text-[#0f172a] mb-3">
-              Notice Permanence
-            </h3>
-            <p className="text-sm text-slate-600 mb-3">
-              All notices remain on our platform permanently,
-              creating a lasting digital memorial for your loved
-              ones.
-            </p>
-            <p className="text-xs text-slate-500">
-              <strong>Cloud Storage:</strong> We use secure,
-              scalable cloud infrastructure with CDN
-              optimization to ensure fast loading times
-              regardless of the number of notices. Your memories
-              are preserved safely and accessible forever.
-            </p>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg text-[#0f172a] mb-3">
-              What's Included
-            </h3>
-            <ul className="text-sm text-slate-600 space-y-2">
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 mt-0.5">✓</span>
-                <span>Permanent online presence</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 mt-0.5">✓</span>
-                <span>Searchable database</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 mt-0.5">✓</span>
-                <span>Social media sharing options</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-green-600 mt-0.5">✓</span>
-                <span>Email notification to contacts</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+     
       </div>
 
       {/* Preview Modal */}
@@ -572,6 +697,7 @@ export function PlaceNotice() {
           noticeData={formData}
           onClose={() => setShowPreview(false)}
           onConfirm={handleConfirmSubmit}
+          isSubmitting={isSubmitting}
         />
       )}
     </div>
