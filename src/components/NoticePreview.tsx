@@ -1,7 +1,8 @@
 import React from "react";
-import { X } from "lucide-react";
+import { X, MapPin, Calendar } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface NoticePreviewProps {
   noticeData: {
@@ -44,23 +45,21 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
         </div>
 
         <div className="p-6">
-          <div className="bg-slate-50 border-2 border-[#0f172a] rounded-lg overflow-hidden">
+          <Card className="border-2 border-slate-200 overflow-hidden">
             <div className="bg-[#0f172a] text-white px-6 py-3">
               <p className="text-sm opacity-80">{noticeData.noticeType}</p>
             </div>
-            
             {noticeData.photo && (
-              <div className="w-full h-64 bg-slate-200">
-                <img 
-                  src={noticeData.photo} 
+              <div className="relative w-full bg-slate-200" style={{ aspectRatio: '1/1' }}>
+                <ImageWithFallback
+                  src={noticeData.photo}
                   alt={`${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
                   className="w-full h-full object-cover"
                 />
               </div>
             )}
-            
-            <div className="p-6 bg-white">
-              <h3 className="text-3xl text-[#0f172a] mb-2">
+            <div className="ps-6 pe-6 pb-6 pt-2">
+              <h3 className="text-xl text-[#0f172a] mb-1">
                 {[
                   noticeData.firstName,
                   noticeData.middleName,
@@ -68,42 +67,51 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
                   noticeData.lastName
                 ].filter(Boolean).join(" ")}
                 {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
-                  <span className="text-xl text-slate-600 font-normal">
+                  <span className="text-slate-600 font-normal">
                     {" "}(née {noticeData.maidenName})
                   </span>
                 )}
               </h3>
-              
-              <div className="text-slate-600 mb-4">
-                <p>{noticeData.location}</p>
+              <div className="flex items-start justify-between mb-4">
                 {noticeData.birthDate && noticeData.passedDate && (
-                  <p className="text-sm mt-1">
+                  <p className="text-slate-600 mb-3">
                     {formatDate(noticeData.birthDate)} - {formatDate(noticeData.passedDate)}
                   </p>
                 )}
                 {!noticeData.birthDate && noticeData.passedDate && (
-                  <p className="text-sm mt-1">
+                  <p className="text-slate-600 mb-3">
                     Passed away {formatDate(noticeData.passedDate)}
                   </p>
                 )}
               </div>
 
-              <div className="border-t pt-4 mb-4">
-                <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">
-                  {noticeData.obituary}
-                </p>
+              <div className="text-sm text-slate-600 mb-4">
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  <span>{noticeData.location}</span>
+                </div>
+                {noticeData.passedDate && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(noticeData.passedDate)}</span>
+                  </div>
+                )}
               </div>
 
+              <p className="text-slate-700 mb-4 whitespace-pre-wrap">
+                {noticeData.obituary}
+              </p>
+
               {noticeData.serviceDetails && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="text-[#0f172a] mb-2">Service Details</h4>
-                  <p className="text-slate-700 text-sm whitespace-pre-wrap">
+                <div className="bg-slate-50 rounded p-3 mb-4">
+                  <p className="text-sm text-slate-700">
+                    <span className="text-[#0f172a]">Service:</span>{" "}
                     {noticeData.serviceDetails}
                   </p>
                 </div>
               )}
             </div>
-          </div>
+          </Card>
 
           <div className="mt-6 bg-slate-50 border rounded-lg p-4">
             <p className="text-sm text-slate-600">

@@ -395,20 +395,18 @@ export function PlaceNotice() {
                   <p className="text-xs text-slate-600 mt-3">
                     <strong>Note:</strong> Corporate accounts
                     can upload complete designs. Your flyer will
-                    be displayed as-is on the platform.
+                    be displayed as-is on the platform. You can also
+                    fill in the form details below to provide additional information.
                   </p>
                 </div>
               )}
 
-              {/* Standard Notice Details (Always show for individuals, optional for corporate) */}
-              <div
-                className={!isIndividual ? "opacity-60" : ""}
-              >
+              {/* Standard Notice Details */}
+              <div>
                 {!isIndividual && (
-                  <p className="text-sm text-slate-600 mb-4 italic">
-                    Optional: Fill in these details if you want
-                    us to generate a notice for you instead of
-                    uploading a flyer.
+                  <p className="text-sm text-slate-600 mb-4">
+                    Fill in these details to provide additional information
+                    along with your flyer, or use them to generate a notice.
                   </p>
                 )}
 
@@ -644,6 +642,9 @@ export function PlaceNotice() {
                       </p>
                       <p className="text-xs text-slate-500">
                         PNG, JPG up to 10MB
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Recommended size: 1080x1080px for best view
                       </p>
                       {photoFile && (
                         <p className="text-xs text-green-600 mt-2">
