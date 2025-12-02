@@ -1,6 +1,7 @@
 import React from "react";
 import { Bell, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { contactDetails } from "../constants/contactDetails";
 
 
 
@@ -68,7 +69,11 @@ export function Footer() {
                 </button>
               </li>
               <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+              <li>
+                <button onClick={() => navigate("/contact")} className="hover:text-white transition-colors">
+                  Contact Us
+                </button>
+              </li>
             </ul>
           </div>
           
@@ -77,15 +82,30 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-slate-300">
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span>0800 123 4567</span>
+                <button 
+                  onClick={() => navigate("/contact")}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  {contactDetails.phone}
+                </button>
               </li>
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span>info@funeralnotices.com</span>
+                <button 
+                  onClick={() => navigate("/contact")}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  {contactDetails.email}
+                </button>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
-                <span>123 Memorial Way<br />London, UK</span>
+                <button 
+                  onClick={() => navigate("/contact")}
+                  className="hover:text-white transition-colors text-left"
+                >
+                  {contactDetails.address}
+                </button>
               </li>
             </ul>
           </div>

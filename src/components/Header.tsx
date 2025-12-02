@@ -128,7 +128,12 @@ export function Header() {
             
 
 
-              <Button variant="ghost" size="sm" className="text-white hover:bg-slate-700">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-white hover:bg-slate-700"
+                onClick={() => navigate("/contact")}
+              >
                 <Phone className="h-4 w-4 mr-2" />
                 <span className="hidden sm:inline">Contact</span>
               </Button>

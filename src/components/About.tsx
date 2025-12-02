@@ -9,11 +9,14 @@ import {
   Star,
   TrendingUp,
   Globe,
+  Bell,
 } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { NoticeCard } from "./NoticeCard";
+import { useNavigate } from "react-router-dom";
+import { contactDetails } from "../constants/contactDetails";
 
 const values = [
   {
@@ -119,31 +122,36 @@ const recentNotices = [
   },
 ];
 
-interface AboutProps {
-  onNavigate?: (page: string) => void;
-}
 
-export function About({ onNavigate }: AboutProps) {
+
+export function About() {
+  const navigate = useNavigate();
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Header with Image */}
-      <div className="relative h-[400px] bg-[#0f172a] overflow-hidden">
+      <div className="relative bg-[#0f172a] overflow-hidden" style={{height:"90vh"}}>
         <div className="absolute inset-0">
           <ImageWithFallback
-            src="https://images.unsplash.com/photo-1626895684825-03b8655f26b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWFtJTIwY29sbGFib3JhdGlvbiUyMGNvbW11bml0eXxlbnwxfHx8fDE3NjMyMjcxMzh8MA&ixlib=rb-4.1.0&q=80&w=1080"
+            src="https://funeralnotices.sirv.com/2149431247.jpg"
             alt="Team collaboration"
             className="w-full h-full object-cover opacity-30"
           />
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
           <div className="max-w-3xl">
+          <Bell className="h-8 w-8 text-white mb-4 text-center mx-auto" />
             <h1 className="text-5xl md:text-6xl text-white mb-4">
               Funeral Notices
             </h1>
-            <p className="text-xl text-slate-200">
+            <p className="text-xl text-slate-200 mb-4">
               Honoring memories and celebrating lives with
               dignity, respect
             </p>
+            <div className="flex gap-4 justify-center">
+
+              <Button onClick={() => navigate("place")}>Place a Notice</Button>
+              <Button onClick={() => navigate("browse")} className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg">View Notices</Button>
+            </div>
           </div>
         </div>
       </div>
@@ -223,7 +231,7 @@ export function About({ onNavigate }: AboutProps) {
           </div>
           <div className="text-center">
             <Button
-              onClick={() => onNavigate?.("browse")}
+              onClick={() => navigate("browse")}
               className="bg-[#0f172a] hover:bg-[#1e3a5f] px-8 py-6 text-lg"
             >
               View More Notices
@@ -325,9 +333,12 @@ export function About({ onNavigate }: AboutProps) {
                   <p className="text-slate-200 text-sm mb-4">
                     Available 24/7
                   </p>
-                  <Button className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg">
+                  <Button 
+                    className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg"
+                    onClick={() => navigate("/contact")}
+                  >
                     <Phone className="h-4 w-4 mr-2" />
-                    0800 123 4567
+                    {contactDetails.phone}
                   </Button>
                 </div>
               </Card>
@@ -340,9 +351,12 @@ export function About({ onNavigate }: AboutProps) {
                   <p className="text-slate-200 text-sm mb-4">
                     We'll respond within 24 hours
                   </p>
-                  <Button className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg">
+                  <Button 
+                    className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg"
+                    onClick={() => navigate("/contact")}
+                  >
                     <Mail className="h-4 w-4 mr-2" />
-                    Send Email
+                    {contactDetails.email}
                   </Button>
                 </div>
               </Card>

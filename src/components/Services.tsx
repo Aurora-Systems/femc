@@ -1,6 +1,8 @@
 import { BookOpen, Users, Flower2, FileText, Heart, Phone } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
+import { contactDetails } from "../constants/contactDetails";
 
 const services = [
   {
@@ -42,6 +44,8 @@ const services = [
 ];
 
 export function Services() {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4">
@@ -88,9 +92,12 @@ export function Services() {
               Our compassionate team is available 24/7 to guide you through our services and help you make the right choices for honoring your loved one.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-white text-[#0f172a] hover:bg-slate-100">
+              <Button 
+                className="bg-white text-[#0f172a] hover:bg-slate-100"
+                onClick={() => navigate("/contact")}
+              >
                 <Phone className="h-4 w-4 mr-2" />
-                Call 0800 123 4567
+                Contact Us
               </Button>
               <Button variant="outline" className="border-white text-white hover:bg-white hover:text-[#0f172a]">
                 Request a Callback

@@ -57,8 +57,8 @@ export function PlaceNotice() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("Photo size must be less than 10MB");
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Photo size must be less than 5MB");
         return;
       }
       setPhotoFile(file);
@@ -386,7 +386,7 @@ export function PlaceNotice() {
                       Upload Full Flyer/Notice Design
                     </p>
                     <p className="text-xs text-slate-500">
-                      PNG, JPG, PDF up to 25MB
+                      PNG, JPG up to 5MB
                     </p>
                     <p className="text-xs text-slate-500 mt-2">
                       Recommended size: 1200x1600px or A4 format
@@ -641,7 +641,7 @@ export function PlaceNotice() {
                         Click to upload or drag and drop
                       </p>
                       <p className="text-xs text-slate-500">
-                        PNG, JPG up to 10MB
+                        PNG, JPG up to 5MB
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
                         Recommended size: 1080x1080px for best view
@@ -672,9 +672,7 @@ export function PlaceNotice() {
                     <Eye className="h-4 w-4 mr-2" />
                     Preview Notice
                   </Button>
-                  <Button type="button" variant="outline">
-                    Save as Draft
-                  </Button>
+                 
                 </div>
                 <div className="text-center sm:text-right sm:ml-auto border-t sm:border-t-0 pt-4 sm:pt-0">
                   <p className="text-sm text-slate-600">
