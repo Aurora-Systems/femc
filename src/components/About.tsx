@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Heart,
   Users,
@@ -17,6 +17,8 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { NoticeCard } from "./NoticeCard";
 import { useNavigate } from "react-router-dom";
 import { contactDetails } from "../constants/contactDetails";
+import db from "../init/db";
+import type { Notice } from "../schemas/noticeSchema";
 
 const values = [
   {
@@ -81,51 +83,154 @@ const stats = [
   },
 ];
 
-const recentNotices = [
-  {
-    id: 1,
-    name: "Margaret Elizabeth Thompson",
-    age: 87,
-    dates: "1936 - 2024",
-    location: "Manchester",
-    date: "November 12, 2024",
-    description:
-      "Beloved mother, grandmother, and great-grandmother. Passed away peacefully surrounded by family.",
-    service: "St. Mary's Church, November 18, 2024 at 2:00 PM",
-    tributes: 24,
-  },
-  {
-    id: 2,
-    name: "James Robert Wilson",
-    age: 72,
-    dates: "1952 - 2024",
-    location: "Birmingham",
-    date: "November 10, 2024",
-    description:
-      "Loving husband, father, and grandfather. A dedicated teacher who touched countless lives.",
-    service:
-      "Birmingham Crematorium, November 17, 2024 at 11:00 AM",
-    tributes: 38,
-  },
-  {
-    id: 3,
-    name: "Sarah Anne Davies",
-    age: 65,
-    dates: "1959 - 2024",
-    location: "Liverpool",
-    date: "November 9, 2024",
-    description:
-      "Cherished wife and mother. Known for her kindness and compassion to all.",
-    service:
-      "Liverpool Cathedral, November 16, 2024 at 3:00 PM",
-    tributes: 17,
-  },
-];
+interface NoticeCardData {
+  id: number;
+  name: string;
+  age: number;
+  dates: string;
+  location: string;
+  date: string;
+  description: string;
+  service: string;
+  tributes: number;
+  noticeType?: string;
+}
 
 
 
 export function About() {
   const navigate = useNavigate();
+  const [recentNotices, setRecentNotices] = useState<NoticeCardData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
+    if (!birthDate || !passedDate) return null;
+    try {
+      const birth = new Date(birthDate);
+      const passed = new Date(passedDate);
+      let age = passed.getFullYear() - birth.getFullYear();
+      const monthDiff = passed.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && passed.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age >= 0 ? age : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatYearRange = (birthDate: string, passedDate: string | null): string => {
+    if (!birthDate && !passedDate) return "";
+    try {
+      const birth = birthDate ? new Date(birthDate).getFullYear() : null;
+      const passed = passedDate ? new Date(passedDate).getFullYear() : null;
+      if (birth && passed) {
+        return `${birth} - ${passed}`;
+      } else if (birth) {
+        return `${birth} -`;
+      } else if (passed) {
+        return `- ${passed}`;
+      }
+      return "";
+    } catch {
+      return "";
+    }
+  };
+
+  const getPhotoUrl = (photoId: string | null): string | null => {
+    if (!photoId) return null;
+    try {
+      const { data } = db.storage
+        .from("notices")
+        .getPublicUrl(photoId);
+      return data.publicUrl;
+    } catch {
+      return null;
+    }
+  };
+
+  useEffect(() => {
+    const fetchRecentNotices = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await db
+          .from("notices")
+          .select("*")
+          .order("event_date", { ascending: false })
+          .limit(3);
+
+        if (error) {
+          console.error("Error fetching notices:", error);
+          setRecentNotices([]);
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          setRecentNotices([]);
+          return;
+        }
+
+        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number }, index: number) => {
+          // Build full name
+          const nameParts = [
+            notice.first_name,
+            notice.middle_name,
+            notice.maiden_name,
+            notice.last_name
+          ].filter(Boolean);
+          const name = nameParts.join(" ");
+
+          // Calculate age
+          const age = calculateAge(notice.dob, notice.dop);
+
+          // Format dates
+          const dates = formatYearRange(notice.dob, notice.dop);
+          const date = formatDate(notice.event_date);
+
+          // Get description (obituary for death notices, announcement for others)
+          const description = notice.notice_type === "death_notice" 
+            ? (notice.obituary || "")
+            : (notice.announcement || "");
+
+          // Get service details
+          const service = notice.event_details || "Service details to be announced";
+
+          return {
+            id: notice.id || index + 1,
+            name,
+            age: age || 0,
+            dates,
+            location: notice.location,
+            date,
+            description,
+            service,
+            tributes: 0, // Default to 0, can be updated if you have a tributes table
+            noticeType: notice.notice_type,
+          };
+        });
+
+        setRecentNotices(transformedNotices);
+      } catch (error) {
+        console.error("Error fetching notices:", error);
+        setRecentNotices([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecentNotices();
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Header with Image */}
@@ -225,9 +330,19 @@ export function About() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {recentNotices.map((notice) => (
-              <NoticeCard key={notice.id} notice={notice} />
-            ))}
+            {isLoading ? (
+              <div className="col-span-3 text-center py-8 text-slate-600">
+                Loading recent notices...
+              </div>
+            ) : recentNotices.length === 0 ? (
+              <div className="col-span-3 text-center py-8 text-slate-600">
+                No recent notices available.
+              </div>
+            ) : (
+              recentNotices.map((notice) => (
+                <NoticeCard key={notice.id} notice={notice} />
+              ))
+            )}
           </div>
           <div className="text-center">
             <Button

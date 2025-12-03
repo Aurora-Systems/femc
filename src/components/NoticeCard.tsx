@@ -1,3 +1,4 @@
+import React from "react";
 import { MapPin, Calendar, Heart, User } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
@@ -14,6 +15,7 @@ interface Notice {
   description: string;
   service: string;
   tributes: number;
+  noticeType?: string;
 }
 
 interface NoticeCardProps {
@@ -21,9 +23,46 @@ interface NoticeCardProps {
 }
 
 export function NoticeCard({ notice }: NoticeCardProps) {
+  const getNoticeTypeLabel = (type?: string): string => {
+    if (!type) return "";
+    switch (type) {
+      case "death_notice":
+        return "Death Notice";
+      case "memorial_service":
+        return "Memorial Service";
+      case "tombstone_unveiling":
+        return "Tombstone Unveiling";
+      default:
+        return type;
+    }
+  };
+
+  const getNoticeTypeColor = (type?: string): string => {
+    if (!type) return "bg-slate-900";
+    switch (type) {
+      case "death_notice":
+        return "bg-slate-900";
+      case "memorial_service":
+        return "bg-blue-900";
+      case "tombstone_unveiling":
+        return "bg-purple-900";
+      default:
+        return "bg-slate-900";
+    }
+  };
+
+  const noticeTypeLabel = getNoticeTypeLabel(notice.noticeType);
+  const noticeTypeColor = getNoticeTypeColor(notice.noticeType);
+
   return (
     <Card className="hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-[#0f172a] overflow-hidden">
-      <div className="relative h-48 w-full bg-slate-200">
+    
+      <div className="relative h-48 w-full bg-slate-200 mb-3">
+          {noticeTypeLabel && (
+        <div className={`bg-[#0f172a]  text-white px-3 py-2 text-base font-semibold text-center`}>
+          {noticeTypeLabel}
+        </div>
+      )}
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1759327939527-568eb87f82a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZWFjZWZ1bCUyMGZsb3dlcnMlMjBtZW1vcmlhbHxlbnwxfHx8fDE3NjMyMjY1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080"
           alt={notice.name}
