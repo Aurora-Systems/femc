@@ -13,6 +13,6 @@ export interface Notice {
     event_details: string, // event details
     obituary: string|null, // obituary details
     announcement:string|null, // announcement details
-    photo_id: string,
+    photo_id: string|null,
     relationship:string, // relationship to the deceased
 }

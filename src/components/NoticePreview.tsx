@@ -14,6 +14,7 @@ interface NoticePreviewProps {
     location: string;
     birthDate?: string;
     passedDate: string;
+    dateOfPassing?: string;
     obituary: string;
     serviceDetails?: string;
     photo?: string;
@@ -30,6 +31,42 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
+
+  const calculateAge = (birthDate: string, passedDate: string): number | null => {
+    if (!birthDate || !passedDate) return null;
+    try {
+      const birth = new Date(birthDate);
+      const passed = new Date(passedDate);
+      let age = passed.getFullYear() - birth.getFullYear();
+      const monthDiff = passed.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && passed.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age >= 0 ? age : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const isDeathNotice = noticeData.noticeType === "Death Notice";
+  const age = noticeData.birthDate && noticeData.passedDate 
+    ? calculateAge(noticeData.birthDate, noticeData.passedDate) 
+    : null;
+
+  const getPlaceholderImage = (): string => {
+    switch (noticeData.noticeType) {
+      case "Death Notice":
+        return "https://funeralnotices.sirv.com/1.png";
+      case "Memorial Service":
+        return "https://funeralnotices.sirv.com/3.png";
+      case "Tombstone Unveiling":
+        return "https://funeralnotices.sirv.com/2.png";
+      default:
+        return "https://funeralnotices.sirv.com/1.png";
+    }
+  };
+
+  const imageSrc = noticeData.photo || getPlaceholderImage();
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-start justify-center z-50 p-4 overflow-y-auto min-h-screen">
@@ -49,15 +86,13 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
             <div className="bg-[#0f172a] text-white px-6 py-3">
               <p className="text-sm opacity-80">{noticeData.noticeType}</p>
             </div>
-            {noticeData.photo && (
-              <div className="relative w-full bg-slate-200" style={{ aspectRatio: '1/1' }}>
-                <ImageWithFallback
-                  src={noticeData.photo}
-                  alt={`${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
+            <div className="relative w-full bg-slate-200" style={{ aspectRatio: '1/1' }}>
+              <ImageWithFallback
+                src={imageSrc}
+                alt={`${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div className="ps-6 pe-6 pb-6 pt-2">
               <h3 className="text-xl text-[#0f172a] mb-1">
                 {[
@@ -73,15 +108,35 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
                 )}
               </h3>
               <div className="flex items-start justify-between mb-4">
-                {noticeData.birthDate && noticeData.passedDate && (
-                  <p className="text-slate-600 mb-3">
-                    {formatDate(noticeData.birthDate)} - {formatDate(noticeData.passedDate)}
-                  </p>
-                )}
-                {!noticeData.birthDate && noticeData.passedDate && (
-                  <p className="text-slate-600 mb-3">
-                    Passed away {formatDate(noticeData.passedDate)}
-                  </p>
+                {isDeathNotice ? (
+                  <>
+                    {noticeData.birthDate && noticeData.passedDate && (
+                      <p className="text-slate-600 mb-3">
+                        {formatDate(noticeData.birthDate)} - {formatDate(noticeData.passedDate)}
+                        {age !== null && (
+                          <span className="ml-2">(Age {age})</span>
+                        )}
+                      </p>
+                    )}
+                    {!noticeData.birthDate && noticeData.passedDate && (
+                      <p className="text-slate-600 mb-3">
+                        Passed away {formatDate(noticeData.passedDate)}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {noticeData.birthDate && noticeData.dateOfPassing && (
+                      <p className="text-slate-600 mb-3">
+                        {formatDate(noticeData.birthDate)} - {formatDate(noticeData.dateOfPassing)}
+                      </p>
+                    )}
+                    {!noticeData.birthDate && noticeData.dateOfPassing && (
+                      <p className="text-slate-600 mb-3">
+                        Passed away {formatDate(noticeData.dateOfPassing)}
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 

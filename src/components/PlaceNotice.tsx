@@ -15,7 +15,7 @@ import {v4} from "uuid";
 export function PlaceNotice() {
   const navigate = useNavigate();
   const [noticeType, setNoticeType] = useState<Notice["notice_type"]>("death_notice");
-  const [accountType, setAccountType] = useState("individual");
+  const [accountType, setAccountType] = useState<"individual" | "corporate">("individual");
   const [showPreview, setShowPreview] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -26,6 +26,7 @@ export function PlaceNotice() {
     location: "",
     birthDate: "",
     passedDate: "",
+    dateOfPassing: "",
     obituary: "",
     serviceDetails: "",
     photo: "",
@@ -71,6 +72,13 @@ export function PlaceNotice() {
         });
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePhotoAreaClick = (inputId: string = "photo") => {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   };
 
@@ -130,7 +138,7 @@ export function PlaceNotice() {
       }
 
       // Upload photo if provided
-      let photoFileName = "";
+      let photoFileName: string | null = null;
       if (photoFile) {
         try {
           photoFileName = await uploadPhoto();
@@ -152,12 +160,16 @@ export function PlaceNotice() {
         last_name: formData.lastName,
         location: formData.location,
         dob: formData.birthDate || "",
-        dop: noticeType === "death_notice" ? formData.passedDate : null,
+        dop: noticeType === "death_notice" 
+          ? formData.passedDate 
+          : (noticeType === "memorial_service" || noticeType === "tombstone_unveiling")
+            ? (formData.dateOfPassing || null)
+            : null,
         event_date: formData.passedDate,
         event_details: formData.serviceDetails || "",
         obituary: noticeType === "death_notice" ? formData.obituary : null,
         announcement: noticeType !== "death_notice" ? formData.obituary : null,
-        photo_id: photoFileName,
+        photo_id: photoFileName || null,
         relationship: formData.relationship || "",
       };
 
@@ -183,6 +195,7 @@ export function PlaceNotice() {
         location: "",
         birthDate: "",
         passedDate: "",
+        dateOfPassing: "",
         obituary: "",
         serviceDetails: "",
         photo: "",
@@ -219,6 +232,12 @@ export function PlaceNotice() {
     if (!profile) {
       navigate("/onboard");
       return;
+    }
+    // Automatically set account type based on user's organization status
+    if (profile.organization) {
+      setAccountType("corporate");
+    } else {
+      setAccountType("individual");
     }
     setIsOnboarded(true);
   }
@@ -310,63 +329,6 @@ export function PlaceNotice() {
                 </div>
               </div>
 
-              {/* Account Type Selection */}
-              <div className="border-b pb-6">
-                <Label className="text-base mb-3 block">
-                  Account Type *
-                </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setAccountType("individual")}
-                    className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      accountType === "individual"
-                        ? "border-[#0f172a] bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-[#0f172a]">
-                        Individual
-                      </h4>
-                      <span className="text-2xl text-[#0f172a]">
-                        $9.99
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600">
-                      For families and individuals
-                    </p>
-                    <p className="text-xs text-slate-600 mt-1">
-                      • Photo upload • 500 words max
-                    </p>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAccountType("corporate")}
-                    className={`p-4 border-2 rounded-lg text-left transition-all ${
-                      accountType === "corporate"
-                        ? "border-[#0f172a] bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-[#0f172a]">
-                        Corporate
-                      </h4>
-                      <span className="text-2xl text-[#0f172a]">
-                        $19.99
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600">
-                      For funeral homes & businesses
-                    </p>
-                    <p className="text-xs text-slate-600 mt-1">
-                      • Full flyer upload • Enhanced features
-                    </p>
-                  </button>
-                </div>
-              </div>
-
               {/* Corporate Flyer Upload (Only for Corporate) */}
               {!isIndividual && (
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
@@ -380,7 +342,17 @@ export function PlaceNotice() {
                     Upload your professionally designed funeral
                     notice flyer or memorial announcement.
                   </p>
-                  <div className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors cursor-pointer bg-white">
+                  <div
+                    onClick={() => handlePhotoAreaClick("photo-corporate")}
+                    className="border-2 border-dashed border-purple-300 rounded-lg p-8 text-center hover:border-purple-500 transition-colors cursor-pointer bg-white"
+                  >
+                    <input
+                      id="photo-corporate"
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg"
+                      onChange={handlePhotoChange}
+                      className="hidden"
+                    />
                     <Upload className="h-12 w-12 text-purple-400 mx-auto mb-3" />
                     <p className="text-sm text-slate-700 mb-1">
                       Upload Full Flyer/Notice Design
@@ -389,8 +361,13 @@ export function PlaceNotice() {
                       PNG, JPG up to 5MB
                     </p>
                     <p className="text-xs text-slate-500 mt-2">
-                      Recommended size: 1200x1600px or A4 format
+                      Recommended size: 1080x1080px
                     </p>
+                    {photoFile && (
+                      <p className="text-xs text-green-600 mt-2">
+                        Selected: {photoFile.name}
+                      </p>
+                    )}
                   </div>
                   <p className="text-xs text-slate-600 mt-3">
                     <strong>Note:</strong> Corporate accounts
@@ -557,11 +534,49 @@ export function PlaceNotice() {
                       }
                     />
                   </div>
-                  <div>
+                  {noticeType === "death_notice" ? (
+                    <div>
+                      <Label htmlFor="passedDate">
+                        Date of Passing *
+                      </Label>
+                      <Input
+                        id="passedDate"
+                        type="date"
+                        className="mt-1"
+                        value={formData.passedDate}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            passedDate: e.target.value,
+                          })
+                        }
+                        required={isIndividual}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      <Label htmlFor="dateOfPassing">
+                        Date of Passing
+                      </Label>
+                      <Input
+                        id="dateOfPassing"
+                        type="date"
+                        className="mt-1"
+                        value={formData.dateOfPassing}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            dateOfPassing: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                  )}
+                </div>
+                {(noticeType === "memorial_service" || noticeType === "tombstone_unveiling") && (
+                  <div className="mt-6">
                     <Label htmlFor="passedDate">
-                      {noticeType === "death_notice"
-                        ? "Date of Passing *"
-                        : "Event Date *"}
+                      Event Date *
                     </Label>
                     <Input
                       id="passedDate"
@@ -577,7 +592,7 @@ export function PlaceNotice() {
                       required={isIndividual}
                     />
                   </div>
-                </div>
+                )}
 
                 <div className="mt-6">
                   <Label htmlFor="obituary">
@@ -629,13 +644,20 @@ export function PlaceNotice() {
 
                 {isIndividual && (
                   <div className="mt-6">
-                    <Label htmlFor="photo">
+                    <Label>
                       Upload Photo (Optional)
                     </Label>
-                    <label
-                      htmlFor="photo"
+                    <div
+                      onClick={() => handlePhotoAreaClick("photo-individual")}
                       className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-[#0f172a] transition-colors cursor-pointer block"
                     >
+                      <input
+                        id="photo-individual"
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handlePhotoChange}
+                        className="hidden"
+                      />
                       <Upload className="h-10 w-10 text-slate-400 mx-auto mb-2" />
                       <p className="text-sm text-slate-600 mb-1">
                         Click to upload or drag and drop
@@ -651,14 +673,7 @@ export function PlaceNotice() {
                           Selected: {photoFile.name}
                         </p>
                       )}
-                    </label>
-                    <input
-                      id="photo"
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg"
-                      onChange={handlePhotoChange}
-                      className="hidden"
-                    />
+                    </div>
                   </div>
                 )}
               </div>
