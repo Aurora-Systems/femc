@@ -286,7 +286,7 @@ export function About() {
             </h2>
             <div className="h-1 w-24 bg-gradient-to-r from-[#0f172a] to-blue-500 mx-auto rounded-full"></div>
           </div>
-          <div className="bg-gradient-to-br from-white to-slate-50  ">
+          <div className=" ">
             <div className="space-y-4 text-slate-700 text-lg leading-relaxed">
               <p>
                 Funeral Notices is a digital platform that helps
