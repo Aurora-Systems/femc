@@ -209,9 +209,9 @@ export function NoticeDetail() {
           Back to Browse
         </Button>
 
-        <Card className="shadow-lg border-2 border-slate-200 overflow-hidden">
+        <Card className="shadow-lg border-2 border-slate-200 overflow-hidden gap-0">
           {noticeTypeLabel && (
-            <div className={`${noticeTypeColor} text-white px-4 py-2 text-center`}>
+            <div className={`bg-[#0f172a] text-white px-4 py-2 text-center`}>
               <p className="text-sm font-semibold">{noticeTypeLabel}</p>
             </div>
           )}
