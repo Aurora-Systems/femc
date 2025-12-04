@@ -297,9 +297,7 @@ export function About() {
                 communities during times of loss.
               </p>
               <p>
-                Our affordable pricing—$9.99 for individuals and
-                $19.99 for funeral homes—makes sharing important
-                events accessible to all. Each notice is
+               Each notice is
                 permanently stored online, creating a lasting
                 digital memorial for family and friends.
               </p>
