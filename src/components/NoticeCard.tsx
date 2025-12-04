@@ -4,6 +4,7 @@ import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { useNavigate } from "react-router-dom";
 
 interface Notice {
   id: number;
@@ -23,6 +24,12 @@ interface NoticeCardProps {
 }
 
 export function NoticeCard({ notice }: NoticeCardProps) {
+  const navigate = useNavigate();
+
+  const handleViewNotice = () => {
+    navigate(`/notice/${notice.id}`);
+  };
+
   const getNoticeTypeLabel = (type?: string): string => {
     if (!type) return "";
     switch (type) {
@@ -115,6 +122,7 @@ export function NoticeCard({ notice }: NoticeCardProps) {
             variant="outline"
             size="sm"
             className="border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white"
+            onClick={handleViewNotice}
           >
             View Notice
           </Button>

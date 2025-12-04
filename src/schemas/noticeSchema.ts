@@ -15,4 +15,8 @@ export interface Notice {
     announcement:string|null, // announcement details
     photo_id: string|null,
     relationship:string, // relationship to the deceased
+    active:boolean, // status of the notice
+    reference_number:string|null, // reference number of the notice
+    redirect_url:string|null, // redirect url of the notice
+
 }

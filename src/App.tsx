@@ -7,6 +7,7 @@ import { Services } from "./components/Services";
 import { About } from "./components/About";
 import { Advertisements } from "./components/Advertisements";
 import { Contact } from "./components/Contact";
+import { NoticeDetail } from "./components/NoticeDetail";
 import AuthenticationPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import Onboard from "./components/Onboard";
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/" element={<About />} />
           <Route path="/place" element={<PlaceNotice />} />
           <Route path="/browse" element={<BrowseNotices />} />
+          <Route path="/notice/:id" element={<NoticeDetail />} />
           <Route path="/services" element={<Services />} />
           <Route path="/advertise" element={<Advertisements />} />
           <Route path="/contact" element={<Contact />} />
