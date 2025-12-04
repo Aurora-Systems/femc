@@ -284,7 +284,7 @@ export function NoticeDetail() {
 
               {notice.relationship && (
                 <div className="text-xs text-slate-600 mb-4">
-                  <span className="font-semibold">Relationship: </span>
+                  <span className="font-semibold">Posted by: </span>
                   {notice.relationship}
                 </div>
               )}
