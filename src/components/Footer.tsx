@@ -1,7 +1,8 @@
 import React from "react";
-import { Bell, Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
+import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { contactDetails } from "../constants/contactDetails";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 
 
@@ -14,7 +15,11 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <Bell className="h-6 w-6" />
+              <ImageWithFallback
+                src="https://funeralnotices.sirv.com/femc_main_logo.png"
+                alt="Funeral Notices Logo"
+                className="h-6 w-auto"
+              />
               <h3 className="text-lg">Funeral Notices</h3>
             </div>
             <p className="text-slate-300 text-sm mb-4">

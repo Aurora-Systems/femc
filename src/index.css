@@ -2561,3 +2561,7 @@ html {
   inherits: false;
   initial-value: 0;
 }
+
+.header-color{
+  background-color: #0a1e2c8e;
+}

@@ -234,7 +234,7 @@ export function About() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Header with Image */}
-      <div className="relative bg-[#0f172a] overflow-hidden" style={{height:"90vh"}}>
+      <div className="relative header-color overflow-hidden" style={{height:"90vh"}}>
         <div className="absolute inset-0">
           <ImageWithFallback
             src="https://funeralnotices.sirv.com/2149431247.jpg"
@@ -244,7 +244,7 @@ export function About() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
           <div className="max-w-3xl">
-          <Bell className="h-8 w-8 text-white mb-4 text-center mx-auto" />
+          <img src="https://funeralnotices.sirv.com/femc_logo.png" alt="Funeral Notices Logo" className="h-16 w-auto mb-4 mx-auto" />
             <h1 className="text-5xl md:text-6xl text-white mb-4">
               Funeral Notices
             </h1>

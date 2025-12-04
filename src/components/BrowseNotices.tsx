@@ -1,112 +1,170 @@
+import React,{ useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { NoticeCard } from "./NoticeCard";
 import { AdSection } from "./AdSection";
+import db from "../init/db";
+import type { Notice } from "../schemas/noticeSchema";
 
-const allNotices = [
-  {
-    id: 1,
-    name: "Margaret Elizabeth Thompson",
-    age: 87,
-    dates: "1936 - 2024",
-    location: "Manchester",
-    date: "November 12, 2024",
-    description: "Beloved mother, grandmother, and great-grandmother. Passed away peacefully surrounded by family.",
-    service: "St. Mary's Church, November 18, 2024 at 2:00 PM",
-    tributes: 24
-  },
-  {
-    id: 2,
-    name: "James Robert Wilson",
-    age: 72,
-    dates: "1952 - 2024",
-    location: "Birmingham",
-    date: "November 10, 2024",
-    description: "Loving husband, father, and grandfather. A dedicated teacher who touched countless lives.",
-    service: "Birmingham Crematorium, November 17, 2024 at 11:00 AM",
-    tributes: 38
-  },
-  {
-    id: 3,
-    name: "Sarah Anne Davies",
-    age: 65,
-    dates: "1959 - 2024",
-    location: "Liverpool",
-    date: "November 9, 2024",
-    description: "Cherished wife and mother. Known for her kindness and compassion to all.",
-    service: "Liverpool Cathedral, November 16, 2024 at 3:00 PM",
-    tributes: 17
-  },
-  {
-    id: 4,
-    name: "Thomas Michael O'Brien",
-    age: 91,
-    dates: "1933 - 2024",
-    location: "Leeds",
-    date: "November 8, 2024",
-    description: "Devoted family man and veteran. Will be deeply missed by all who knew him.",
-    service: "St. Patrick's Church, November 15, 2024 at 10:00 AM",
-    tributes: 45
-  },
-  {
-    id: 5,
-    name: "Emily Rose Anderson",
-    age: 58,
-    dates: "1966 - 2024",
-    location: "Bristol",
-    date: "November 7, 2024",
-    description: "Loving mother and devoted nurse. Her caring spirit will live on in our hearts.",
-    service: "Bristol Memorial Chapel, November 16, 2024 at 1:00 PM",
-    tributes: 31
-  },
-  {
-    id: 6,
-    name: "Arthur John Clarke",
-    age: 84,
-    dates: "1940 - 2024",
-    location: "Newcastle",
-    date: "November 6, 2024",
-    description: "Beloved grandfather and friend to many. A man of integrity and warmth.",
-    service: "Newcastle Central Crematorium, November 14, 2024 at 2:30 PM",
-    tributes: 22
-  },
-  {
-    id: 7,
-    name: "Catherine Mary Hughes",
-    age: 76,
-    dates: "1948 - 2024",
-    location: "Cardiff",
-    date: "November 5, 2024",
-    description: "Devoted wife and mother. Her warmth and generosity touched everyone she met.",
-    service: "Cardiff Memorial Church, November 13, 2024 at 11:30 AM",
-    tributes: 29
-  },
-  {
-    id: 8,
-    name: "David William Turner",
-    age: 69,
-    dates: "1955 - 2024",
-    location: "Edinburgh",
-    date: "November 4, 2024",
-    description: "Loving father and successful businessman. His legacy lives on through his family.",
-    service: "Edinburgh Central Chapel, November 12, 2024 at 2:00 PM",
-    tributes: 41
-  },
-  {
-    id: 9,
-    name: "Patricia Jane Morris",
-    age: 82,
-    dates: "1942 - 2024",
-    location: "Glasgow",
-    date: "November 3, 2024",
-    description: "Cherished grandmother and community volunteer. Known for her endless compassion.",
-    service: "Glasgow Cathedral, November 11, 2024 at 10:00 AM",
-    tributes: 35
-  }
-];
+interface NoticeCardData {
+  id: number;
+  name: string;
+  age: number;
+  dates: string;
+  location: string;
+  date: string;
+  description: string;
+  service: string;
+  tributes: number;
+  noticeType?: string;
+}
 
 export function BrowseNotices() {
+  const [allNotices, setAllNotices] = useState<NoticeCardData[]>([]);
+  const [filteredNotices, setFilteredNotices] = useState<NoticeCardData[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
+    if (!birthDate || !passedDate) return null;
+    try {
+      const birth = new Date(birthDate);
+      const passed = new Date(passedDate);
+      let age = passed.getFullYear() - birth.getFullYear();
+      const monthDiff = passed.getMonth() - birth.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && passed.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age >= 0 ? age : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    if (!dateString) return "";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch {
+      return dateString;
+    }
+  };
+
+  const formatYearRange = (birthDate: string, passedDate: string | null): string => {
+    if (!birthDate && !passedDate) return "";
+    try {
+      const birth = birthDate ? new Date(birthDate).getFullYear() : null;
+      const passed = passedDate ? new Date(passedDate).getFullYear() : null;
+      if (birth && passed) {
+        return `${birth} - ${passed}`;
+      } else if (birth) {
+        return `${birth} -`;
+      } else if (passed) {
+        return `- ${passed}`;
+      }
+      return "";
+    } catch {
+      return "";
+    }
+  };
+
+  useEffect(() => {
+    const fetchNotices = async () => {
+      try {
+        setIsLoading(true);
+        const { data, error } = await db
+          .from("notices")
+          .select("*")
+          .order("event_date", { ascending: false });
+
+        if (error) {
+          console.error("Error fetching notices:", error);
+          setAllNotices([]);
+          setFilteredNotices([]);
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          setAllNotices([]);
+          setFilteredNotices([]);
+          return;
+        }
+
+        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number }, index: number) => {
+          // Build full name
+          const nameParts = [
+            notice.first_name,
+            notice.middle_name,
+            notice.maiden_name,
+            notice.last_name
+          ].filter(Boolean);
+          const name = nameParts.join(" ");
+
+          // Calculate age
+          const age = calculateAge(notice.dob, notice.dop);
+
+          // Format dates
+          const dates = formatYearRange(notice.dob, notice.dop);
+          const date = formatDate(notice.event_date);
+
+          // Get description (obituary for death notices, announcement for others)
+          const description = notice.notice_type === "death_notice" 
+            ? (notice.obituary || "")
+            : (notice.announcement || "");
+
+          // Get service details
+          const service = notice.event_details || "Service details to be announced";
+
+          return {
+            id: notice.id || index + 1,
+            name,
+            age: age || 0,
+            dates,
+            location: notice.location,
+            date,
+            description,
+            service,
+            tributes: 0, // Default to 0, can be updated if you have a tributes table
+            noticeType: notice.notice_type,
+          };
+        });
+
+        setAllNotices(transformedNotices);
+        setFilteredNotices(transformedNotices);
+      } catch (error) {
+        console.error("Error fetching notices:", error);
+        setAllNotices([]);
+        setFilteredNotices([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchNotices();
+  }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredNotices(allNotices);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = allNotices.filter((notice) =>
+      notice.name.toLowerCase().includes(query) ||
+      notice.location.toLowerCase().includes(query) ||
+      notice.description.toLowerCase().includes(query)
+    );
+    setFilteredNotices(filtered);
+  }, [searchQuery, allNotices]);
+
+  const handleSearch = () => {
+    // Search is handled by useEffect, but we keep this for the button click
+    // The search happens automatically as the user types
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4">
@@ -120,11 +178,21 @@ export function BrowseNotices() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
               <Input 
-                placeholder="Search by name" 
+                placeholder="Search by name, location, or description" 
                 className="pl-10 border-slate-300"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
               />
             </div>
-            <Button className="bg-[#0f172a] hover:bg-[#1e3a5f]">
+            <Button 
+              className="bg-[#0f172a] hover:bg-[#1e3a5f]"
+              onClick={handleSearch}
+            >
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
@@ -132,30 +200,48 @@ export function BrowseNotices() {
         </div>
 
         <div className="mb-4 text-sm text-slate-600">
-          Showing {allNotices.length} notices
+          {isLoading ? (
+            "Loading notices..."
+          ) : (
+            `Showing ${filteredNotices.length} ${filteredNotices.length === 1 ? 'notice' : 'notices'}`
+          )}
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {allNotices.slice(0, 6).map((notice) => (
-                <NoticeCard key={notice.id} notice={notice} />
-              ))}
-            </div>
-            
-            <AdSection variant="inline" />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-              {allNotices.slice(6).map((notice) => (
-                <NoticeCard key={notice.id} notice={notice} />
-              ))}
-            </div>
+        {isLoading ? (
+          <div className="text-center py-12 text-slate-600">
+            Loading notices...
           </div>
-          
-          <aside className="lg:w-80 flex-shrink-0">
-            <AdSection variant="sidebar" />
-          </aside>
-        </div>
+        ) : filteredNotices.length === 0 ? (
+          <div className="text-center py-12 text-slate-600">
+            {searchQuery ? "No notices found matching your search." : "No notices available."}
+          </div>
+        ) : (
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredNotices.slice(0, 6).map((notice) => (
+                  <NoticeCard key={notice.id} notice={notice} />
+                ))}
+              </div>
+              
+              {filteredNotices.length > 6 && (
+                <>
+                  <AdSection variant="inline" />
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    {filteredNotices.slice(6).map((notice) => (
+                      <NoticeCard key={notice.id} notice={notice} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+            
+            <aside className="lg:w-80 flex-shrink-0">
+              <AdSection variant="sidebar" />
+            </aside>
+          </div>
+        )}
       </div>
     </div>
   );

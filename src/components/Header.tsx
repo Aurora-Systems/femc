@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Bell, Phone, User, Menu, X } from "lucide-react";
+import { Phone, User, Menu, X } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 import db from "../init/db";
 
 
@@ -105,7 +106,11 @@ export function Header() {
               className="flex items-center gap-2 cursor-pointer" 
               onClick={() => navigate("")}
             >
-              <Bell className="h-8 w-8" />
+              <ImageWithFallback
+                src="https://funeralnotices.sirv.com/femc_main_logo.png"
+                alt="Funeral Notices Logo"
+                className="h-8 w-auto"
+              />
               <div>
                 <h1 className="text-xl">Funeral Notices</h1>
               </div>
