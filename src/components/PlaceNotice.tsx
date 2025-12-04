@@ -11,6 +11,8 @@ import db from "../init/db";
 import { toast } from "sonner";
 import type { Notice } from "../schemas/noticeSchema";
 import {v4} from "uuid";
+import { routes } from "../init/server";
+import axios from "axios";
 
 export function PlaceNotice() {
   const navigate = useNavigate();
@@ -36,6 +38,7 @@ export function PlaceNotice() {
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [total,set_total]=useState<number>(0);
 
   const handlePreview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +153,7 @@ export function PlaceNotice() {
       }
 
       // Map form data to schema
-      const noticeData: Notice = {
+      const noticeData: Notice & {currency:"USD"|"ZiG", total: number} = {
         notice_type: noticeType,
         user_id: session.user.id,
         first_name: formData.firstName,
@@ -171,41 +174,33 @@ export function PlaceNotice() {
         announcement: noticeType !== "death_notice" ? formData.obituary : null,
         photo_id: photoFileName || null,
         relationship: formData.relationship || "",
+        active: false,
+        reference_number: null,
+        redirect_url: null,
+        currency:"USD",
+        total:total	,
       };
 
-      // Submit to database
-      const { error } = await db
-        .from("notices")
-        .insert([noticeData]);
+      // Submit to api
+      console.log(noticeData);
+      const req = await axios.post(routes.intiate_transaction, noticeData);
+      console.log(req)
+      // const response = await fetch(routes.intiate_transaction, {
+      //   method: "POST",
+      //   body: JSON.stringify(noticeData),
+      // });
+     
 
-      if (error) {
-        throw error;
+      if (req.status !== 200) {
+        throw new Error("Failed to submit notice");
       }
 
       toast.success("Notice submitted successfully!");
       setShowPreview(false);
       
       // Reset form
-      setFormData({
-        firstName: "",
-        middleName: "",
-        maidenName: "",
-        lastName: "",
-        nickname: "",
-        location: "",
-        birthDate: "",
-        passedDate: "",
-        dateOfPassing: "",
-        obituary: "",
-        serviceDetails: "",
-        photo: "",
-        noticeType: "Death Notice",
-        relationship: "",
-      });
-      setPhotoFile(null);
-      
-      // Redirect to dashboard or notices page
-      navigate("/dashboard");
+     
+     
     } catch (error: any) {
       console.error("Error submitting notice:", error);
       toast.error(error.message || "Failed to submit notice. Please try again.");
@@ -236,8 +231,10 @@ export function PlaceNotice() {
     // Automatically set account type based on user's organization status
     if (profile.organization) {
       setAccountType("corporate");
+      set_total(19.99);
     } else {
       setAccountType("individual");
+      set_total(9.99);
     }
     setIsOnboarded(true);
   }

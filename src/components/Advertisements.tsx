@@ -1,3 +1,4 @@
+import React from "react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
@@ -49,7 +50,7 @@ export function Advertisements() {
         </div>
 
         {/* Sample Advertisements */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h2 className="text-2xl text-[#0f172a] mb-4">Current Advertisers</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {sampleAds.map((ad) => (
@@ -72,7 +73,7 @@ export function Advertisements() {
               </Card>
             ))}
           </div>
-        </div>
+        </div> */}
 
         {/* Advertising Packages */}
         <div className="mb-8">

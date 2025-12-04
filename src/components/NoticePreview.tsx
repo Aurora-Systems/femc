@@ -82,7 +82,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
         </div>
 
         <div className="p-6">
-          <Card className="border-2 border-slate-200 overflow-hidden">
+          <Card className="border-2 border-slate-200 overflow-hidden gap-0">
             <div className="bg-[#0f172a] text-white px-6 py-3">
               <p className="text-sm opacity-80">{noticeData.noticeType}</p>
             </div>

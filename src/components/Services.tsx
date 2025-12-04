@@ -1,3 +1,4 @@
+import React from "react";
 import { BookOpen, Users, Flower2, FileText, Heart, Phone } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
@@ -99,9 +100,7 @@ export function Services() {
                 <Phone className="h-4 w-4 mr-2" />
                 Contact Us
               </Button>
-              <Button variant="outline" className="border-white text-white hover:bg-white hover:text-[#0f172a]">
-                Request a Callback
-              </Button>
+            
             </div>
           </div>
         </div>

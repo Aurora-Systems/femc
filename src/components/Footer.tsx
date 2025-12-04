@@ -67,13 +67,13 @@ export function Footer() {
           <div>
             <h4 className="mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-slate-300">
-              <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
+              {/* <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li> */}
               <li>
                 <button onClick={() => navigate("advertise")} className="hover:text-white transition-colors">
                   Advertise With Us
                 </button>
               </li>
-              <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li>
+              {/* <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li> */}
               <li>
                 <button onClick={() => navigate("/contact")} className="hover:text-white transition-colors">
                   Contact Us
