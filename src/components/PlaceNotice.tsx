@@ -194,8 +194,9 @@ export function PlaceNotice() {
       if (req.status !== 200) {
         throw new Error("Failed to submit notice");
       }
-
-      toast.success("Notice submitted successfully!");
+      toast.success("Success. Redirecting to checkout...");
+      localStorage.setItem("reference_number", req.data.reference_number);
+      navigate(req.data.payment_url);
       setShowPreview(false);
       
       // Reset form

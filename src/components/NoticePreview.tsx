@@ -180,7 +180,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
               className="flex-1 bg-[#0f172a] hover:bg-[#1e3a5f]"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Submitting..." : "Confirm & Submit"}
+              {isSubmitting ? "Submitting..." : "Checkout"}
             </Button>
             <Button 
               onClick={onClose}

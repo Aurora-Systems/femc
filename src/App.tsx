@@ -13,6 +13,7 @@ import Dashboard from "./components/Dashboard";
 import Onboard from "./components/Onboard";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
+import PaymentResult from "./components/PaymentResult";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>("home");
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/auth" element={<AuthenticationPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/onboard" element={<Onboard />} />
+          <Route path="/transaction_return" element={<PaymentResult />} />
         </Routes>
         <Footer />
         <Toaster />
