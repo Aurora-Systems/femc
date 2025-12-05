@@ -153,7 +153,7 @@ export function PlaceNotice() {
       }
 
       // Map form data to schema
-      const noticeData: Notice & {currency:"USD"|"ZiG", total: number} = {
+      const noticeData: Notice & {currency:"usd"|"ZiG", total: number} = {
         notice_type: noticeType,
         user_id: session.user.id,
         first_name: formData.firstName,
@@ -177,7 +177,7 @@ export function PlaceNotice() {
         active: false,
         reference_number: null,
         redirect_url: null,
-        currency:"USD",
+        currency:"usd",
         total:total	,
       };
 
