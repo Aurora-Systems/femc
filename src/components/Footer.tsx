@@ -116,7 +116,7 @@ export function Footer() {
         </div>
         
         <div className="border-t border-slate-700 mt-8 pt-8 text-center text-sm text-slate-400">
-          <p>&copy; 2024 Funeral Notices. All rights reserved. | <a href="#" className="hover:text-white">Privacy Policy</a> | <a href="#" className="hover:text-white">Terms of Service</a></p>
+          <p>&copy; 2024 Funeral Notices. All rights reserved. | <a href="https://www.termsfeed.com/live/b741fb50-65e0-43d8-bec8-9dc0ea83f690" className="hover:text-white">Privacy Policy</a> | <a href="https://www.termsfeed.com/live/f307735a-29e8-47ca-93b3-9f04d324c0f0" className="hover:text-white">Terms of Service</a></p>
         </div>
       </div>
     </footer>

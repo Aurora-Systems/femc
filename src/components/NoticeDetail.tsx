@@ -289,10 +289,10 @@ export function NoticeDetail() {
                 </div>
               )}
 
-              <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-200">
+              {/* <div className="flex items-center gap-2 mt-auto pt-4 border-t border-slate-200">
                 <Heart className="h-4 w-4 fill-[#0f172a] text-[#0f172a]" />
                 <span className="text-sm text-slate-600">0 tributes</span>
-              </div>
+              </div> */}
             </div>
           </div>
         </Card>
