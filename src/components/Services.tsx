@@ -82,9 +82,9 @@ export function Services() {
                       </li>
                     ))}
                   </ul>
-                  <Button variant="outline" className="w-full border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white">
+                  {/* <Button variant="outline" className="w-full border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white">
                     Learn More
-                  </Button>
+                  </Button> */}
                 </div>
               </Card>
             );
