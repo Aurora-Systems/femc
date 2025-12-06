@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { MapPin, Calendar, Heart, User } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useNavigate } from "react-router-dom";
+import db from "../init/db";
+import { toast } from "sonner";
 
 interface Notice {
   id: number;
@@ -17,17 +19,74 @@ interface Notice {
   service: string;
   tributes: number;
   noticeType?: string;
+  photoUrl?: string | null;
+  tribute?:number|null;
 }
 
 interface NoticeCardProps {
   notice: Notice;
+  onTributeUpdate?: () => void;
 }
 
-export function NoticeCard({ notice }: NoticeCardProps) {
+export function NoticeCard({ notice, onTributeUpdate }: NoticeCardProps) {
   const navigate = useNavigate();
+  const [tributes, setTributes] = useState(notice.tribute ?? notice.tributes ?? 0);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleViewNotice = () => {
     navigate(`/notice/${notice.id}`);
+  };
+
+  const handleHeartClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (isUpdating) return;
+    
+    setIsUpdating(true);
+    try {
+      // First, get the current tribute count
+      const { data: currentNotice, error: fetchError } = await db
+        .from("notices")
+        .select("tribute")
+        .eq("id", notice.id)
+        .single();
+
+      if (fetchError || !currentNotice) {
+        console.error("Error fetching current tribute count:", fetchError);
+        toast.error("Failed to add tribute");
+        setIsUpdating(false);
+        return;
+      }
+
+      const currentTributeCount = currentNotice.tribute || 0;
+
+      // Increment the tribute count in the notices table
+      const new_tribute_count = currentTributeCount + 1;
+      const { error, data } = await db
+        .from("notices")
+        .update({ tribute: new_tribute_count })
+        .eq("id", notice.id).single();
+        console.log(data)
+
+      if (error) {
+        console.error("Error adding tribute:", error);
+        toast.error("Failed to add tribute");
+      } else {
+        // Update local state optimistically
+        setTributes(currentTributeCount + 1);
+        toast.success("Tribute added");
+        
+        // Notify parent to refresh if callback provided
+        if (onTributeUpdate) {
+          onTributeUpdate();
+        }
+      }
+    } catch (error) {
+      console.error("Error adding tribute:", error);
+      toast.error("Failed to add tribute");
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const getNoticeTypeLabel = (type?: string): string => {
@@ -64,16 +123,16 @@ export function NoticeCard({ notice }: NoticeCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-[#0f172a] overflow-hidden">
     
-      <div className="relative h-48 w-full bg-slate-200 mb-3">
+      <div className="relative w-full aspect-square bg-slate-200 mb-3">
           {noticeTypeLabel && (
         <div className={`bg-[#0f172a]  text-white px-3 py-2 text-base font-semibold text-center`}>
           {noticeTypeLabel}
         </div>
       )}
         <ImageWithFallback
-          src="https://images.unsplash.com/photo-1759327939527-568eb87f82a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZWFjZWZ1bCUyMGZsb3dlcnMlMjBtZW1vcmlhbHxlbnwxfHx8fDE3NjMyMjY1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080"
+          src={notice.photoUrl || "https://images.unsplash.com/photo-1759327939527-568eb87f82a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZWFjZWZ1bCUyMGZsb3dlcnMlMjBtZW1vcmlhbHxlbnwxfHx8fDE3NjMyMjY1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080"}
           alt={notice.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
       <div className="ps-6 pe-6 pb-6 pt-2">
@@ -114,10 +173,14 @@ export function NoticeCard({ notice }: NoticeCardProps) {
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-sm text-slate-600">
-            <Heart className="h-4 w-4 fill-[#0f172a] text-[#0f172a]" />
-            <span>{notice.tributes} tributes</span>
-          </div>
+          {/* <button
+            onClick={handleHeartClick}
+            disabled={isUpdating}
+            className="flex items-center gap-1 text-sm text-slate-600 hover:text-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Heart className={`h-4 w-4 ${isUpdating ? 'animate-pulse' : ''} fill-[#0f172a] text-[#0f172a] hover:fill-rose-600 hover:text-rose-600 transition-colors`} />
+            <span>{tributes} tributes</span>
+          </button> */}
           <Button
             variant="outline"
             size="sm"

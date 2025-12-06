@@ -18,5 +18,5 @@ export interface Notice {
     active:boolean, // status of the notice
     reference_number:string|null, // reference number of the notice
     redirect_url:string|null, // redirect url of the notice
-
+    tribute?:number|null, // tribute count
 }

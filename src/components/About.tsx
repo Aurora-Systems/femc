@@ -94,6 +94,8 @@ interface NoticeCardData {
   service: string;
   tributes: number;
   noticeType?: string;
+  photoUrl?: string | null;
+  tribute?: number | null;
 }
 
 
@@ -159,6 +161,7 @@ export function About() {
     }
   };
 
+
   useEffect(() => {
     const fetchRecentNotices = async () => {
       try {
@@ -180,7 +183,8 @@ export function About() {
           return;
         }
 
-        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number }, index: number) => {
+        // Transform notices
+        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number; tribute?: number }, index: number) => {
           // Build full name
           const nameParts = [
             notice.first_name,
@@ -205,6 +209,12 @@ export function About() {
           // Get service details
           const service = notice.event_details || "Service details to be announced";
 
+          // Get photo URL
+          const photoUrl = getPhotoUrl(notice.photo_id);
+
+          // Get tribute count from the notice record
+          const tributeCount = notice.tribute || 0;
+
           return {
             id: notice.id || index + 1,
             name,
@@ -214,8 +224,10 @@ export function About() {
             date,
             description,
             service,
-            tributes: 0, // Default to 0, can be updated if you have a tributes table
+            tributes: tributeCount,
             noticeType: notice.notice_type,
+            photoUrl,
+            tribute: tributeCount,
           };
         });
 
@@ -231,6 +243,62 @@ export function About() {
     fetchRecentNotices();
   }, []);
 
+  const handleTributeUpdate = () => {
+    // Refresh the recent notices to get updated tribute counts
+    const refreshNotices = async () => {
+      try {
+        const { data, error } = await db
+          .from("notices")
+          .select("*")
+          .order("event_date", { ascending: false })
+          .limit(3);
+
+        if (error || !data || data.length === 0) {
+          return;
+        }
+
+        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number; tribute?: number }, index: number) => {
+          const nameParts = [
+            notice.first_name,
+            notice.middle_name,
+            notice.maiden_name,
+            notice.last_name
+          ].filter(Boolean);
+          const name = nameParts.join(" ");
+          const age = calculateAge(notice.dob, notice.dop);
+          const dates = formatYearRange(notice.dob, notice.dop);
+          const date = formatDate(notice.event_date);
+          const description = notice.notice_type === "death_notice" 
+            ? (notice.obituary || "")
+            : (notice.announcement || "");
+          const service = notice.event_details || "Service details to be announced";
+          const photoUrl = getPhotoUrl(notice.photo_id);
+          const tributeCount = notice.tribute || 0;
+
+          return {
+            id: notice.id || index + 1,
+            name,
+            age: age || 0,
+            dates,
+            location: notice.location,
+            date,
+            description,
+            service,
+            tributes: tributeCount,
+            noticeType: notice.notice_type,
+            photoUrl,
+            tribute: tributeCount,
+          };
+        });
+
+        setRecentNotices(transformedNotices);
+      } catch (error) {
+        console.error("Error refreshing notices:", error);
+      }
+    };
+    refreshNotices();
+  };
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Header with Image */}
@@ -244,7 +312,7 @@ export function About() {
         </div>
         <div className="relative container mx-auto px-4 h-full flex items-center justify-center text-center">
           <div className="max-w-3xl">
-          <img src="https://funeralnotices.sirv.com/femc_logo.png" alt="Funeral Notices Logo" className="h-16 w-auto mb-4 mx-auto" />
+          <img src="https://funeralnotices.sirv.com/femc_logo.png" alt="Funeral Notices Logo"  className="h-16 w-auto mb-4 mx-auto" />
             <h1 className="text-5xl md:text-6xl text-white mb-4">
               Funeral Notices
             </h1>
@@ -338,7 +406,7 @@ export function About() {
               </div>
             ) : (
               recentNotices.map((notice) => (
-                <NoticeCard key={notice.id} notice={notice} />
+                <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
               ))
             )}
           </div>

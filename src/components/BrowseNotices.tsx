@@ -1,15 +1,19 @@
 import React,{ useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { NoticeCard } from "./NoticeCard";
-import { AdSection } from "./AdSection";
 import db from "../init/db";
 import type { Notice } from "../schemas/noticeSchema";
 
 interface NoticeCardData {
   id: number;
   name: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  middleName?: string | null;
+  maidenName?: string | null;
+  nickname?: string | null;
   age: number;
   dates: string;
   location: string;
@@ -18,10 +22,11 @@ interface NoticeCardData {
   service: string;
   tributes: number;
   noticeType?: string;
+  photoUrl?: string | null;
+  tribute?: number | null;
 }
 
 export function BrowseNotices() {
-  const [allNotices, setAllNotices] = useState<NoticeCardData[]>([]);
   const [filteredNotices, setFilteredNotices] = useState<NoticeCardData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -70,116 +75,155 @@ export function BrowseNotices() {
     }
   };
 
-  useEffect(() => {
-    const fetchNotices = async () => {
-      try {
-        setIsLoading(true);
-        const { data, error } = await db
-          .from("notices")
-          .select("*")
-          .order("event_date", { ascending: false });
+  const getPhotoUrl = (photoId: string | null): string | null => {
+    if (!photoId) return null;
+    try {
+      const { data } = db.storage
+        .from("notices")
+        .getPublicUrl(photoId);
+      return data.publicUrl;
+    } catch {
+      return null;
+    }
+  };
 
-        if (error) {
-          console.error("Error fetching notices:", error);
-          setAllNotices([]);
-          setFilteredNotices([]);
-          return;
-        }
 
-        if (!data || data.length === 0) {
-          setAllNotices([]);
-          setFilteredNotices([]);
-          return;
-        }
+  const transformNotice = (notice: Notice & { id?: number; tribute?: number }, index: number): NoticeCardData => {
+    // Build full name
+    const nameParts = [
+      notice.first_name,
+      notice.middle_name,
+      notice.maiden_name,
+      notice.last_name
+    ].filter(Boolean);
+    const name = nameParts.join(" ");
 
-        const transformedNotices: NoticeCardData[] = data.map((notice: Notice & { id?: number }, index: number) => {
-          // Build full name
-          const nameParts = [
-            notice.first_name,
-            notice.middle_name,
-            notice.maiden_name,
-            notice.last_name
-          ].filter(Boolean);
-          const name = nameParts.join(" ");
+    // Calculate age
+    const age = calculateAge(notice.dob, notice.dop);
 
-          // Calculate age
-          const age = calculateAge(notice.dob, notice.dop);
+    // Format dates
+    const dates = formatYearRange(notice.dob, notice.dop);
+    const date = formatDate(notice.event_date);
 
-          // Format dates
-          const dates = formatYearRange(notice.dob, notice.dop);
-          const date = formatDate(notice.event_date);
+    // Get description (obituary for death notices, announcement for others)
+    const description = notice.notice_type === "death_notice" 
+      ? (notice.obituary || "")
+      : (notice.announcement || "");
 
-          // Get description (obituary for death notices, announcement for others)
-          const description = notice.notice_type === "death_notice" 
-            ? (notice.obituary || "")
-            : (notice.announcement || "");
+    // Get service details
+    const service = notice.event_details || "Service details to be announced";
 
-          // Get service details
-          const service = notice.event_details || "Service details to be announced";
+    // Get photo URL
+    const photoUrl = getPhotoUrl(notice.photo_id);
 
-          return {
-            id: notice.id || index + 1,
-            name,
-            age: age || 0,
-            dates,
-            location: notice.location,
-            date,
-            description,
-            service,
-            tributes: 0, // Default to 0, can be updated if you have a tributes table
-            noticeType: notice.notice_type,
-          };
-        });
+    // Get tribute count from the notice record
+    const tributeCount = notice.tribute || 0;
 
-        setAllNotices(transformedNotices);
-        setFilteredNotices(transformedNotices);
-      } catch (error) {
-        console.error("Error fetching notices:", error);
-        setAllNotices([]);
-        setFilteredNotices([]);
-      } finally {
-        setIsLoading(false);
-      }
+    return {
+      id: notice.id || index + 1,
+      name,
+      firstName: notice.first_name || null,
+      lastName: notice.last_name || null,
+      middleName: notice.middle_name || null,
+      maidenName: notice.maiden_name || null,
+      nickname: notice.nickname || null,
+      age: age || 0,
+      dates,
+      location: notice.location,
+      date,
+      description,
+      service,
+      tributes: tributeCount,
+      noticeType: notice.notice_type,
+      photoUrl,
+      tribute: tributeCount,
     };
+  };
 
+  const fetchNotices = async (searchTerm: string = "") => {
+    try {
+      setIsLoading(true);
+      let query = db
+        .from("notices")
+        .select("*");
+
+      // If there's a search term, filter the database query
+      if (searchTerm.trim()) {
+        const searchLower = `%${searchTerm.toLowerCase().trim()}%`;
+        // Use or() to search across multiple fields with ilike (case-insensitive pattern matching)
+        const orConditions = [
+          `first_name.ilike.${searchLower}`,
+          `last_name.ilike.${searchLower}`,
+          `middle_name.ilike.${searchLower}`,
+          `maiden_name.ilike.${searchLower}`,
+          `nickname.ilike.${searchLower}`,
+          `location.ilike.${searchLower}`,
+          `obituary.ilike.${searchLower}`,
+          `announcement.ilike.${searchLower}`
+        ].join(',');
+        query = query.or(orConditions);
+      }
+
+      const { data, error } = await query.order("event_date", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching notices:", error);
+        setFilteredNotices([]);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setFilteredNotices([]);
+        return;
+      }
+
+      // Transform notices
+      const transformedNotices: NoticeCardData[] = data.map(
+        (notice: Notice & { id?: number; tribute?: number }, index: number) => 
+          transformNotice(notice, index)
+      );
+
+      setFilteredNotices(transformedNotices);
+    } catch (error) {
+      console.error("Error fetching notices:", error);
+      setFilteredNotices([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchNotices();
   }, []);
 
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredNotices(allNotices);
-      return;
-    }
-
-    const query = searchQuery.toLowerCase().trim();
-    const filtered = allNotices.filter((notice) =>
-      notice.name.toLowerCase().includes(query) ||
-      notice.location.toLowerCase().includes(query) ||
-      notice.description.toLowerCase().includes(query)
-    );
-    setFilteredNotices(filtered);
-  }, [searchQuery, allNotices]);
-
   const handleSearch = () => {
-    // Search is handled by useEffect, but we keep this for the button click
-    // The search happens automatically as the user types
+    fetchNotices(searchQuery);
+  };
+
+  const handleClear = () => {
+    setSearchQuery("");
+    fetchNotices();
+  };
+
+  const handleTributeUpdate = () => {
+    // Refresh the notices to get updated tribute counts
+    fetchNotices(searchQuery);
   };
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4">
         <div className="mb-8">
-          <h1 className="text-4xl text-[#0f172a] mb-2">Browse Funeral Notices</h1>
-          <p className="text-slate-600">Search and view all funeral notices</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl text-[#0f172a] mb-2">Browse Funeral Notices</h1>
+          <p className="text-sm sm:text-base text-slate-600">Search and view all funeral notices</p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
+        <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="relative w-full min-w-0">
               <Input 
                 placeholder="Search by name, location, or description" 
-                className="pl-10 border-slate-300"
+                className="border-slate-300 w-full text-sm sm:text-base"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -189,13 +233,25 @@ export function BrowseNotices() {
                 }}
               />
             </div>
-            <Button 
-              className="bg-[#0f172a] hover:bg-[#1e3a5f]"
-              onClick={handleSearch}
-            >
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
+            <div className="flex gap-2 sm:gap-3  sm:w-auto sm:flex-shrink-0">
+              <Button 
+                className="bg-[#0f172a] hover:bg-[#1e3a5f] flex-1 sm:flex-initial sm:px-4 sm:min-w-[100px]"
+                onClick={handleSearch}
+              >
+                <Search className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Search</span>
+              </Button>
+              {searchQuery && (
+                <Button 
+                  variant="outline"
+                  className="border-slate-300 hover:bg-slate-100 flex-1 sm:flex-initial sm:px-4 sm:min-w-[80px]"
+                  onClick={handleClear}
+                >
+                  <X className="h-4 w-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Clear</span>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -216,30 +272,10 @@ export function BrowseNotices() {
             {searchQuery ? "No notices found matching your search." : "No notices available."}
           </div>
         ) : (
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-1">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredNotices.slice(0, 6).map((notice) => (
-                  <NoticeCard key={notice.id} notice={notice} />
-                ))}
-              </div>
-              
-              {filteredNotices.length > 6 && (
-                <>
-                  <AdSection variant="inline" />
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    {filteredNotices.slice(6).map((notice) => (
-                      <NoticeCard key={notice.id} notice={notice} />
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-            
-            <aside className="lg:w-80 flex-shrink-0">
-              <AdSection variant="sidebar" />
-            </aside>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredNotices.map((notice) => (
+              <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
+            ))}
           </div>
         )}
       </div>

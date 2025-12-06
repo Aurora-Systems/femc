@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
-import server_url, { routes } from "../init/server";
+import { routes } from "../init/server";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -14,6 +14,7 @@ const PaymentResult = () => {
     const [paid, setPaid] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
+    const navigate = useNavigate();
     const check_payment_status = async () => {
         setLoading(true);
         try{
@@ -70,7 +71,7 @@ const PaymentResult = () => {
                         </>:<>
                         <h1>Payment {paid ? "Success" : "Failed"}</h1>
                         {paid ? <p className="text-center">Your payment has been successful. You can now view your notice.</p> : <p className="text-center">Your payment has failed. Please try again.</p>}
-                        {!paid?<Button onClick={check_payment_status} className="mt-3">Check Again</Button>:<></>}
+                        {!paid?<Button onClick={check_payment_status} className="mt-3">Check Again</Button>:<Button onClick={() => navigate("/browse")} className="mt-3">Browse Notices</Button>}
                         </>}
                     </>
                     :
