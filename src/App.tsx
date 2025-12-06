@@ -28,7 +28,7 @@ export default function App() {
           <Route path="/browse" element={<BrowseNotices />} />
           <Route path="/notice/:id" element={<NoticeDetail />} />
           <Route path="/services" element={<Services />} />
-          <Route path="/advertise" element={<Advertisements />} />
+          {/* <Route path="/advertise" element={<Advertisements />} /> */}
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<AuthenticationPage />} />
           <Route path="/dashboard" element={<Dashboard />} />

@@ -69,9 +69,11 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-slate-300">
               {/* <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li> */}
               <li>
+                <a href="mailto:support@funeralnotices.co.zw?subject=Requesting%20to%20advertise%20on%20your%20platform" target="_blank">
                 <button onClick={() => navigate("advertise")} className="hover:text-white transition-colors">
                   Advertise With Us
                 </button>
+                </a>
               </li>
               {/* <li><a href="#" className="hover:text-white transition-colors">FAQs</a></li> */}
               <li>

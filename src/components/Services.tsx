@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, Users, Flower2, FileText, Heart, Phone } from "lucide-react";
+import { BookOpen, Users, Flower2, FileText, Heart, Phone, Building2 } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
@@ -19,29 +19,35 @@ const services = [
     features: ["Permanent memorial", "Photo & video sharing", "Guest book", "Anniversary reminders"]
   },
   {
-    icon: Flower2,
-    title: "Floral Tributes",
-    description: "Order beautiful floral arrangements to be delivered directly to the funeral service or family home through our trusted partners.",
-    features: ["Wide selection", "Same-day delivery", "Custom messages", "Quality guaranteed"]
+    icon: Building2,
+    title: "Tombstone Unveiling Notices",
+    description: "Announce tombstone unveiling ceremonies to invite family, friends, and community members to commemorate and honor your loved one's memory.",
+    features: ["Ceremony announcements", "Event details", "RSVP management", "Location information"]
   },
-  {
-    icon: BookOpen,
-    title: "Order of Service",
-    description: "Design and print professional order of service booklets for funeral ceremonies with our easy-to-use templates and design service.",
-    features: ["Custom designs", "Quick turnaround", "Various sizes", "High-quality printing"]
-  },
+  // {
+  //   icon: Flower2,
+  //   title: "Floral Tributes",
+  //   description: "Order beautiful floral arrangements to be delivered directly to the funeral service or family home through our trusted partners.",
+  //   features: ["Wide selection", "Same-day delivery", "Custom messages", "Quality guaranteed"]
+  // },
+  // {
+  //   icon: BookOpen,
+  //   title: "Order of Service",
+  //   description: "Design and print professional order of service booklets for funeral ceremonies with our easy-to-use templates and design service.",
+  //   features: ["Custom designs", "Quick turnaround", "Various sizes", "High-quality printing"]
+  // },
   {
     icon: Users,
     title: "Funeral Directors",
     description: "Connect with trusted funeral directors in your area who can guide you through arrangements and provide professional support.",
     features: ["Verified professionals", "Local directory", "Reviews & ratings", "Free consultations"]
   },
-  {
-    icon: Heart,
-    title: "Grief Support",
-    description: "Access resources and support services to help you navigate the grieving process, including counseling and support groups.",
-    features: ["Professional counseling", "Support groups", "Resource library", "24/7 helpline"]
-  }
+  // {
+  //   icon: Heart,
+  //   title: "Grief Support",
+  //   description: "Access resources and support services to help you navigate the grieving process, including counseling and support groups.",
+  //   features: ["Professional counseling", "Support groups", "Resource library", "24/7 helpline"]
+  // }
 ];
 
 export function Services() {
