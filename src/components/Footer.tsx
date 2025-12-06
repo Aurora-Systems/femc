@@ -25,7 +25,7 @@ export function Footer() {
             <p className="text-slate-300 text-sm mb-4">
               Honoring memories and celebrating the lives of loved ones with dignity and respect.
             </p>
-            <div className="flex gap-3">
+            {/* <div className="flex gap-3">
               <a href="#" className="hover:text-slate-300 transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
@@ -35,7 +35,7 @@ export function Footer() {
               <a href="#" className="hover:text-slate-300 transition-colors">
                 <Instagram className="h-5 w-5" />
               </a>
-            </div>
+            </div> */}
           </div>
           
           <div>
@@ -88,7 +88,6 @@ export function Footer() {
               <li className="flex items-start gap-2">
                 <Phone className="h-4 w-4 mt-1 flex-shrink-0" />
                 <button 
-                  onClick={() => navigate("/contact")}
                   className="hover:text-white transition-colors text-left"
                 >
                   {contactDetails.phone}
@@ -97,7 +96,6 @@ export function Footer() {
               <li className="flex items-start gap-2">
                 <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
                 <button 
-                  onClick={() => navigate("/contact")}
                   className="hover:text-white transition-colors text-left"
                 >
                   {contactDetails.email}
@@ -106,7 +104,6 @@ export function Footer() {
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
                 <button 
-                  onClick={() => navigate("/contact")}
                   className="hover:text-white transition-colors text-left"
                 >
                   {contactDetails.address}
