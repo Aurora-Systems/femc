@@ -123,16 +123,16 @@ export function NoticeCard({ notice, onTributeUpdate }: NoticeCardProps) {
   return (
     <Card className="hover:shadow-lg transition-shadow border-2 border-slate-200 hover:border-[#0f172a] overflow-hidden">
     
-      <div className="relative w-full aspect-square bg-slate-200 mb-3">
+      <div className="relative w-full aspect-square bg-slate-200 mb-3 overflow-hidden">
           {noticeTypeLabel && (
-        <div className={`bg-[#0f172a]  text-white px-3 py-2 text-base font-semibold text-center`}>
+        <div className={`bg-[#0f172a]  text-white px-3 py-2 text-base font-semibold text-center absolute top-0 left-0 right-0 z-10`}>
           {noticeTypeLabel}
         </div>
       )}
         <ImageWithFallback
           src={notice.photoUrl || "https://images.unsplash.com/photo-1759327939527-568eb87f82a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZWFjZWZ1bCUyMGZsb3dlcnMlMjBtZW1vcmlhbHxlbnwxfHx8fDE3NjMyMjY1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080"}
           alt={notice.name}
-          className="w-full h-full object-contain"
+          style={{objectFit: "cover", height: "350px", width: "100%"}}
         />
       </div>
       <div className="ps-6 pe-6 pb-6 pt-2">
