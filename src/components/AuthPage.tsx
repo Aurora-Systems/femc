@@ -147,7 +147,7 @@ export default function AuthenticationPage() {
                 />
               </div>
               <div>
-                <p className="text-left py-2"><small>By continuing, you agree to our<br/> <a href="/terms"><u>Terms of Service</u></a> and <a href="/privacy"><u>Privacy Policy</u></a></small></p>
+                <p className="text-left py-2"><small>By continuing, you agree to our<br/> <a href="https://www.termsfeed.com/live/f307735a-29e8-47ca-93b3-9f04d324c0f0"><u>Terms of Service</u></a> and <a href="https://www.termsfeed.com/live/b741fb50-65e0-43d8-bec8-9dc0ea83f690"><u>Privacy Policy</u></a></small></p>
               </div>
               <div className="pt-2">
                 <Button 
