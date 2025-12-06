@@ -110,7 +110,6 @@ export function Header() {
                 src="https://funeralnotices.sirv.com/femc_main_logo.png"
                 alt="Funeral Notices Logo"
                 className="h-8 w-auto"
-                style={{width:"20px !important"}}
               />
               <div>
                 <h1 className="text-xl">Funeral Notices</h1>
