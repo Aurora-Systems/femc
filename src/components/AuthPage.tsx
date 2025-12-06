@@ -146,13 +146,16 @@ export default function AuthenticationPage() {
                   className="h-11 text-base w-full"
                 />
               </div>
+              <div>
+                <p className="text-left py-2"><small>By continuing, you agree to our<br/> <a href="/terms"><u>Terms of Service</u></a> and <a href="/privacy"><u>Privacy Policy</u></a></small></p>
+              </div>
               <div className="pt-2">
                 <Button 
                   type="submit" 
                   className="w-full h-11 text-base font-medium" 
                   disabled={loading}
                 >
-                  {loading ? "Sending OTP..." : "Send OTP"}
+                  {loading ? "Sending OTP..." : "Continue"}
                 </Button>
               </div>
             </form>
