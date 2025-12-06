@@ -2563,7 +2563,7 @@ html {
 }
 
 .header-color{
-  background-color: #0a1e2c8e;
+  background-color: #0a1e2c !important;
 }
 
 /* rotation animation */
