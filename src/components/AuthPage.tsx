@@ -96,13 +96,22 @@ export default function AuthenticationPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 p-4">
-      <Card className="  shadow-2xl border-0 bg-white/95 backdrop-blur-sm card-auth" >
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={{
+        backgroundImage: 'url(https://funeralnotices.sirv.com/2149431247.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      <div className="absolute inset-0 bg-black/40"></div>
+      <Card className="relative z-10 shadow-2xl border-0 bg-white card-auth " style={{width:"350px"}}>
         <CardHeader className="space-y-4 pb-6">
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-3">
               {step === "email" ? (
-                <Mail className="h-6 w-6 text-primary" />
+                <img src="https://funeralnotices.sirv.com/femc_logo.png" alt="Funeral Notices Logo" />
               ) : (
                 <Shield className="h-6 w-6 text-primary" />
               )}
