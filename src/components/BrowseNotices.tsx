@@ -145,7 +145,7 @@ export function BrowseNotices() {
       setIsLoading(true);
       let query = db
         .from("notices")
-        .select("*");
+        .select("*").eq("active", true).order("id",{ascending: false});
 
       // If there's a search term, filter the database query
       if (searchTerm.trim()) {

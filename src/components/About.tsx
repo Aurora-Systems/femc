@@ -169,7 +169,8 @@ export function About() {
         const { data, error } = await db
           .from("notices")
           .select("*")
-          .order("event_date", { ascending: false })
+          .eq("active", true)
+          .order("id",{ascending: false})
           .limit(3);
 
         if (error) {
