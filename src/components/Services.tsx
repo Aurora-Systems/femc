@@ -1,5 +1,5 @@
 import React from "react";
-import { BookOpen, Users, Flower2, FileText, Heart, Phone, Building2 } from "lucide-react";
+import { BookOpen, Users, Flower2, FileText, Heart, Phone, Building2, Package } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
@@ -10,19 +10,34 @@ const services = [
     icon: FileText,
     title: "Funeral Notices",
     description: "Publish obituaries and funeral notices online to inform friends, family, and community members about funeral arrangements and service details.",
-    features: ["Online publication", "Custom layouts", "Photo galleries", "Tribute wall"]
+    features: ["Online publication", "Custom layouts", "Photo galleries", "Tribute wall"],
+    link: "/place",
+    buttonText: "Place a Notice"
   },
   {
     icon: Heart,
     title: "Memorial Pages",
     description: "Create lasting tribute pages where loved ones can share memories, photos, and messages of condolence in a dedicated online space.",
-    features: ["Permanent memorial", "Photo & video sharing", "Guest book", "Anniversary reminders"]
+    features: ["Permanent memorial", "Photo & video sharing", "Guest book", "Anniversary reminders"],
+    link: "/place",
+    buttonText: "Place a Notice"
+
   },
   {
     icon: Building2,
     title: "Tombstone Unveiling Notices",
     description: "Announce tombstone unveiling ceremonies to invite family, friends, and community members to commemorate and honor your loved one's memory.",
-    features: ["Ceremony announcements", "Event details", "RSVP management", "Location information"]
+    features: ["Ceremony announcements", "Event details", "RSVP management", "Location information"],
+    link: "/place",
+    buttonText: "Place a Notice"
+  },
+  {
+    icon: Package,
+    title: "Funeral Services & Equipment Hire",
+    description: "Comprehensive funeral services including equipment rental, venue arrangements, and all necessary items for funeral ceremonies and memorial services.",
+    features: ["Equipment rental", "Venue arrangements", "Catering services", "Transportation", "Audio/visual equipment", "Decoration services"],
+    link: `https://wa.me/${contactDetails.phone}?text=Good day can i get information on funeral service and equipment hiring services?`,
+    buttonText: "Learn more"
   },
   // {
   //   icon: Flower2,
@@ -40,7 +55,9 @@ const services = [
     icon: Users,
     title: "Funeral Directors",
     description: "Connect with trusted funeral directors in your area who can guide you through arrangements and provide professional support.",
-    features: ["Verified professionals", "Local directory", "Reviews & ratings", "Free consultations"]
+    features: ["Verified professionals", "Local directory", "Reviews & ratings", "Free consultations"],
+    link: "/auth",
+    buttonText: "Get Started"
   },
   // {
   //   icon: Heart,
@@ -82,9 +99,9 @@ export function Services() {
                       </li>
                     ))}
                   </ul>
-                  {/* <Button variant="outline" className="w-full border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white">
-                    Learn More
-                  </Button> */}
+                  <a href={service.link}><Button variant="outline" className="w-full border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white">
+                    {service.buttonText}
+                  </Button></a>
                 </div>
               </Card>
             );
