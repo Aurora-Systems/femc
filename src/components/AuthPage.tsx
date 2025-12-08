@@ -128,7 +128,7 @@ export default function AuthenticationPage() {
             </CardDescription>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6 text-center">
+        <CardContent className="space-y-6 text-center py-4">
           {step === "email" ? (
             <form key="email-form" onSubmit={handleSendOTP} className="space-y-5">
               <div className="space-y-2 text-center">

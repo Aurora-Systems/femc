@@ -410,7 +410,7 @@ export default function Dashboard() {
               )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 py-4">
             {isEditing ? (
               <form onSubmit={(e) => { e.preventDefault(); handleSave(); }} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -550,7 +550,7 @@ export default function Dashboard() {
             <CardTitle>My Notices</CardTitle>
             <CardDescription>Notices you have placed on the site</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="py-4">
             {noticesLoading ? (
               <div className="text-center py-8 text-muted-foreground">
                 Loading notices...
