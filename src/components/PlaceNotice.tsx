@@ -218,7 +218,9 @@ export function PlaceNotice() {
   };
 
   const price =
-    accountType === "individual" ? "$9.99" : "$19.99";
+      accountType === "individual" ? "$9.99" : "$9.99";
+
+    // accountType === "individual" ? "$9.99" : "$19.99";
   const isIndividual = accountType === "individual";
 
   const check_onboarded=async()=>{
@@ -239,11 +241,11 @@ export function PlaceNotice() {
     // Automatically set account type based on user's organization status
     if (profile.organization) {
       setAccountType("corporate");
-      set_total(0.01)
+      set_total(9.99)
       // set_total(19.99);
     } else {
       setAccountType("individual");
-      set_total(0.01)
+      set_total(9.99)
       // set_total(9.99);
     }
     setIsOnboarded(true);

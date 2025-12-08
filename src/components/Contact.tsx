@@ -117,7 +117,7 @@ export function Contact() {
               <MapPin className="h-6 w-6" />
             </div>
             <h3 className="text-xl text-[#0f172a] mb-2">Address</h3>
-            <p className="text-slate-600 mb-4">Visit us at our office</p>
+            {/* <p className="text-slate-600 mb-4">Visit us at our office</p> */}
             <p className="text-slate-700">
               {contactDetails.address}
             </p>
