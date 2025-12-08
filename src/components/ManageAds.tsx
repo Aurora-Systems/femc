@@ -481,7 +481,7 @@ const ManageAds = () => {
             <CardTitle>All Ads</CardTitle>
             <CardDescription>Manage existing ads on the site</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="py-4">
             {adsLoading ? (
               <div className="text-center py-8 text-muted-foreground">
                 Loading ads...
