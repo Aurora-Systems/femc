@@ -62,12 +62,11 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
       const currentTributeCount = currentNotice.tribute || 0;
 
       // Increment the tribute count in the notices table
-      const new_tribute_count = currentTributeCount + 1;
-      const { error, data } = await db
-        .from("notices")
-        .update({ tribute: new_tribute_count })
-        .eq("id", notice.id).single();
-        console.log(data)
+      const { error } = await db.rpc('increment_tribute', {
+        notice_id: notice.id
+      });
+
+      console.log(error)
 
       if (error) {
         console.error("Error adding tribute:", error);
@@ -174,14 +173,14 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          {/* <button
+          <button
             onClick={handleHeartClick}
             disabled={isUpdating}
             className="flex items-center gap-1 text-sm text-slate-600 hover:text-rose-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Heart className={`h-4 w-4 ${isUpdating ? 'animate-pulse' : ''} fill-[#0f172a] text-[#0f172a] hover:fill-rose-600 hover:text-rose-600 transition-colors`} />
             <span>{tributes} tributes</span>
-          </button> */}
+          </button>
           <div className="flex gap-2">
             <Button
               variant="outline"
