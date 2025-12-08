@@ -195,13 +195,13 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
               <Button
                 variant="outline"
                 size="sm"
-                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white "
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete();
                 }}
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-4 w-4" /> Remove From Site
               </Button>
             )}
           </div>
