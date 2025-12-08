@@ -166,7 +166,7 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         </p>
 
         <div className="bg-slate-50 rounded p-3 mb-4">
-          <p className="text-sm text-slate-700">
+          <p className="text-sm text-slate-700 line-clamp-3">
             <span className="text-[#0f172a]">Service:</span>{" "}
             {notice.service}
           </p>
