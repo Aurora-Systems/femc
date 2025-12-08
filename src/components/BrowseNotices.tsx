@@ -459,19 +459,23 @@ export function BrowseNotices() {
                     {ads.map((ad, index) => (
                       <CarouselItem key={ad.id || index}>
                         <a
-                          href={ad.link || "#"}
+                          // href={ad.link || "#"}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block w-full"
                           onClick={() => {
                             // Track click (you might want to increment clicks in the database)
                             if (ad.id) {
-                              db.from("ads")
-                                .update({ clicks: (ad.clicks || 0) + 1 })
-                                .eq("id", ad.id)
-                                .then(() => {
-                                  // Optionally refresh ads to update click count
-                                });
+                              db.rpc("increment_ad_clicks", { ad_id: ad.id }).then((res) => {
+                                console.log(res);
+                                navigate(ad.link || "#");
+                              })
+                              // db.from("ads")
+                              //   .update({ clicks: (ad.clicks || 0) + 1 })
+                              //   .eq("id", ad.id)
+                              //   .then(() => {
+                              //     // Optionally refresh ads to update click count
+                              //   });
                             }
                           }}
                         >
