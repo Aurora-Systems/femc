@@ -439,43 +439,9 @@ export function BrowseNotices() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Notices Section */}
-          <div className="flex-1">
-            {isLoading ? (
-              <div className="text-center py-12 text-slate-600">
-                Loading notices...
-              </div>
-            ) : filteredNotices.length === 0 ? (
-              <div className="text-center py-12 text-slate-600">
-                {searchQuery ? "No notices found matching your search." : "No notices available."}
-              </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                  {filteredNotices.map((notice) => (
-                    <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
-                  ))}
-                </div>
-                {/* Infinite scroll sentinel */}
-                <div ref={observerTarget} className="h-10 flex items-center justify-center">
-                  {isLoadingMore && (
-                    <div className="text-center py-8 text-slate-600">
-                      Loading more notices...
-                    </div>
-                  )}
-                  {!hasMore && filteredNotices.length > 0 && (
-                    <div className="text-center py-8 text-slate-600">
-                      No more notices to load.
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Ad Sidebar */}
-          <div className="w-full lg:w-80 flex-shrink-0">
-            <div className="sticky top-8">
+          {/* Ad Section - Shows first on mobile, sidebar on desktop */}
+          <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-8">
               {adsLoading ? (
                 <div className="w-full h-32 bg-slate-200 rounded-lg flex items-center justify-center">
                   <p className="text-slate-500">Loading ads...</p>
@@ -550,6 +516,40 @@ export function BrowseNotices() {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Notices Section - Shows second on mobile, main content on desktop */}
+          <div className="flex-1 order-2 lg:order-1">
+            {isLoading ? (
+              <div className="text-center py-12 text-slate-600">
+                Loading notices...
+              </div>
+            ) : filteredNotices.length === 0 ? (
+              <div className="text-center py-12 text-slate-600">
+                {searchQuery ? "No notices found matching your search." : "No notices available."}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {filteredNotices.map((notice) => (
+                    <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
+                  ))}
+                </div>
+                {/* Infinite scroll sentinel */}
+                <div ref={observerTarget} className="h-10 flex items-center justify-center">
+                  {isLoadingMore && (
+                    <div className="text-center py-8 text-slate-600">
+                      Loading more notices...
+                    </div>
+                  )}
+                  {!hasMore && filteredNotices.length > 0 && (
+                    <div className="text-center py-8 text-slate-600">
+                      No more notices to load.
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
