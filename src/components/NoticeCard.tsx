@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Calendar, Heart, User, Trash2 } from "lucide-react";
+import { MapPin, Calendar, Heart, User, Trash2, Share2 } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -36,6 +36,19 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
 
   const handleViewNotice = () => {
     navigate(`/notice/${notice.id}`);
+  };
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const noticeUrl = `${window.location.origin}/notice/${notice.id}`;
+    
+    try {
+      await navigator.clipboard.writeText(noticeUrl);
+      toast.success("Notice link copied to clipboard!");
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
+    }
   };
 
   const handleHeartClick = async (e: React.MouseEvent) => {
@@ -182,6 +195,15 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
             <span>{tributes} tributes</span>
           </button>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white"
+              onClick={handleShare}
+              title="Share notice"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
             <Button
               variant="outline"
               size="sm"
