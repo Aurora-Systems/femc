@@ -8,6 +8,7 @@ import { ImageWithFallback } from "./figma/ImageWithFallback";
 import db from "../init/db";
 import type { Notice } from "../schemas/noticeSchema";
 import type Ad from "../schemas/adSchema";
+import { useNavigate } from "react-router-dom";
 
 interface NoticeCardData {
   id: number;
@@ -30,6 +31,7 @@ interface NoticeCardData {
 }
 
 export function BrowseNotices() {
+  const navigate = useNavigate();
   const [filteredNotices, setFilteredNotices] = useState<NoticeCardData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -448,7 +450,7 @@ export function BrowseNotices() {
               )}
             </Carousel>
           ) : (
-            <div className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
+            <div onClick={() => navigate("/contact")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
               <div className="text-center p-4">
                 <p className="text-lg font-semibold text-[#0f172a] mb-1">Contact us to advertise here</p>
                 <p className="text-sm text-slate-600">Reach thousands of visitors</p>
