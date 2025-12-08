@@ -87,7 +87,7 @@ export function Contact() {
               <Phone className="h-6 w-6" />
             </div>
             <h3 className="text-xl text-[#0f172a] mb-2">Phone</h3>
-            <p className="text-slate-600 mb-4">Available 24/7</p>
+            <p className="text-slate-600 mb-4">Available 8am to 5pm</p>
             <Button 
               className="w-full bg-[#0f172a] hover:bg-[#1e3a5f]"
               onClick={() => window.location.href = `tel:${contactDetails.phone}`}
