@@ -3,8 +3,11 @@ import { Search, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { NoticeCard } from "./NoticeCard";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "./ui/carousel";
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 import db from "../init/db";
 import type { Notice } from "../schemas/noticeSchema";
+import type Ad from "../schemas/adSchema";
 
 interface NoticeCardData {
   id: number;
@@ -35,6 +38,9 @@ export function BrowseNotices() {
   const [page, setPage] = useState(0);
   const observerTarget = useRef<HTMLDivElement>(null);
   const NOTICES_PER_PAGE = 20;
+  const [ads, setAds] = useState<(Ad & { id?: number; photoUrl?: string | null })[]>([]);
+  const [adsLoading, setAdsLoading] = useState(true);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
 
   const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
     if (!birthDate || !passedDate) return null;
@@ -89,6 +95,55 @@ export function BrowseNotices() {
       return data.publicUrl;
     } catch {
       return null;
+    }
+  };
+
+  const getAdPhotoUrl = (photoId: string | null): string | null => {
+    if (!photoId) return null;
+    try {
+      const { data } = db.storage
+        .from("ads")
+        .getPublicUrl(photoId);
+      return data.publicUrl;
+    } catch {
+      return null;
+    }
+  };
+
+  const fetchAds = async () => {
+    try {
+      setAdsLoading(true);
+      const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+      
+      const { data, error } = await db
+        .from("ads")
+        .select("*")
+        .gte("expires", today) // Only get ads that haven't expired
+        .order("id", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching ads:", error);
+        setAds([]);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        setAds([]);
+        return;
+      }
+
+      // Transform ads to include photo URLs
+      const transformedAds = data.map((ad: Ad & { id?: number }) => ({
+        ...ad,
+        photoUrl: getAdPhotoUrl(ad.photo_id),
+      }));
+
+      setAds(transformedAds);
+    } catch (error) {
+      console.error("Error fetching ads:", error);
+      setAds([]);
+    } finally {
+      setAdsLoading(false);
     }
   };
 
@@ -230,8 +285,50 @@ export function BrowseNotices() {
     setPage(0);
     setHasMore(true);
     fetchNotices("", 0, false);
+    fetchAds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (!carouselApi || ads.length <= 1) return;
+
+    let interval: NodeJS.Timeout;
+    let isPaused = false;
+
+    const startAutoplay = () => {
+      interval = setInterval(() => {
+        if (!isPaused) {
+          carouselApi.scrollNext();
+        }
+      }, 5000); // Change slide every 5 seconds
+    };
+
+    startAutoplay();
+
+    // Pause on interaction
+    const handleMouseEnter = () => {
+      isPaused = true;
+    };
+
+    const handleMouseLeave = () => {
+      isPaused = false;
+    };
+
+    const carouselElement = document.querySelector('[data-slot="carousel"]');
+    if (carouselElement) {
+      carouselElement.addEventListener('mouseenter', handleMouseEnter);
+      carouselElement.addEventListener('mouseleave', handleMouseLeave);
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (carouselElement) {
+        carouselElement.removeEventListener('mouseenter', handleMouseEnter);
+        carouselElement.removeEventListener('mouseleave', handleMouseLeave);
+      }
+    };
+  }, [carouselApi, ads.length]);
 
   // Infinite scroll observer
   useEffect(() => {
@@ -288,6 +385,78 @@ export function BrowseNotices() {
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4">
+        {/* Ad Banner */}
+        <div className="mb-8">
+          {adsLoading ? (
+            <div className="w-full h-32 bg-slate-200 rounded-lg flex items-center justify-center">
+              <p className="text-slate-500">Loading ads...</p>
+            </div>
+          ) : ads.length > 0 ? (
+            <Carousel
+              setApi={setCarouselApi}
+              className="w-full"
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+            >
+              <CarouselContent>
+                {ads.map((ad, index) => (
+                  <CarouselItem key={ad.id || index}>
+                    <a
+                      href={ad.link || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full"
+                      onClick={() => {
+                        // Track click (you might want to increment clicks in the database)
+                        if (ad.id) {
+                          db.from("ads")
+                            .update({ clicks: (ad.clicks || 0) + 1 })
+                            .eq("id", ad.id)
+                            .then(() => {
+                              // Optionally refresh ads to update click count
+                            });
+                        }
+                      }}
+                    >
+                      <div className="relative w-full h-32 md:h-40 bg-slate-100 rounded-lg overflow-hidden">
+                        {ad.photoUrl ? (
+                          <ImageWithFallback
+                            src={ad.photoUrl}
+                            alt={ad.name || "Advertisement"}
+                            style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-slate-200">
+                            <div className="text-center p-4">
+                              <h3 className="text-lg font-semibold text-[#0f172a] mb-2">{ad.name}</h3>
+                              {ad.text && <p className="text-sm text-slate-600">{ad.text}</p>}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </a>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              {ads.length > 1 && (
+                <>
+                  <CarouselPrevious className="left-2" />
+                  <CarouselNext className="right-2" />
+                </>
+              )}
+            </Carousel>
+          ) : (
+            <div className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
+              <div className="text-center p-4">
+                <p className="text-lg font-semibold text-[#0f172a] mb-1">Contact us to advertise here</p>
+                <p className="text-sm text-slate-600">Reach thousands of visitors</p>
+              </div>
+            </div>
+          )}
+        </div>
+
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl text-[#0f172a] mb-2">Browse Funeral Notices</h1>
           <p className="text-sm sm:text-base text-slate-600">Search and view all funeral notices</p>
