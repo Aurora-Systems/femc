@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MapPin, Calendar, Heart, User } from "lucide-react";
+import { MapPin, Calendar, Heart, User, Trash2 } from "lucide-react";
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
@@ -26,9 +26,10 @@ interface Notice {
 interface NoticeCardProps {
   notice: Notice;
   onTributeUpdate?: () => void;
+  onDelete?: () => void;
 }
 
-export function NoticeCard({ notice, onTributeUpdate }: NoticeCardProps) {
+export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProps) {
   const navigate = useNavigate();
   const [tributes, setTributes] = useState(notice.tribute ?? notice.tributes ?? 0);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -172,7 +173,7 @@ export function NoticeCard({ notice, onTributeUpdate }: NoticeCardProps) {
           </p>
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           {/* <button
             onClick={handleHeartClick}
             disabled={isUpdating}
@@ -181,14 +182,29 @@ export function NoticeCard({ notice, onTributeUpdate }: NoticeCardProps) {
             <Heart className={`h-4 w-4 ${isUpdating ? 'animate-pulse' : ''} fill-[#0f172a] text-[#0f172a] hover:fill-rose-600 hover:text-rose-600 transition-colors`} />
             <span>{tributes} tributes</span>
           </button> */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white"
-            onClick={handleViewNotice}
-          >
-            View Notice
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[#0f172a] text-[#0f172a] hover:bg-[#0f172a] hover:text-white"
+              onClick={handleViewNotice}
+            >
+              View Notice
+            </Button>
+            {onDelete && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </Card>

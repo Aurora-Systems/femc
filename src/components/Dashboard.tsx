@@ -8,7 +8,7 @@ import db from "../init/db";
 import { User } from "../schemas/userSchema";
 import { Notice } from "../schemas/noticeSchema";
 import { toast } from "sonner";
-import { Edit2, Save, X } from "lucide-react";
+import { Edit2, Save, X, Trash2 } from "lucide-react";
 import { NoticeCard } from "./NoticeCard";
 
 export default function Dashboard() {
@@ -72,145 +72,181 @@ export default function Dashboard() {
     checkAuth();
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchUserNotices = async () => {
-      if (!user) return;
+  const fetchUserNotices = async () => {
+    if (!user) return;
 
-      try {
-        setNoticesLoading(true);
-        const { data: { session } } = await db.auth.getSession();
-        
-        if (!session) return;
+    try {
+      setNoticesLoading(true);
+      const { data: { session } } = await db.auth.getSession();
+      
+      if (!session) return;
 
-        const { data, error } = await db
-          .from("notices")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .order("id", { ascending: false });
+      const { data, error } = await db
+        .from("notices")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .order("id", { ascending: false });
 
-        if (error) {
-          console.error("Error fetching user notices:", error);
-          setUserNotices([]);
-          return;
-        }
-
-        if (!data || data.length === 0) {
-          setUserNotices([]);
-          return;
-        }
-
-        // Transform notices to match NoticeCard format
-        const transformedNotices = data.map((notice: Notice & { id?: number; tribute?: number }, index: number) => {
-          const nameParts = [
-            notice.first_name,
-            notice.middle_name,
-            notice.maiden_name,
-            notice.last_name
-          ].filter(Boolean);
-          const name = nameParts.join(" ");
-
-          // Calculate age
-          const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
-            if (!birthDate || !passedDate) return null;
-            try {
-              const birth = new Date(birthDate);
-              const passed = new Date(passedDate);
-              let age = passed.getFullYear() - birth.getFullYear();
-              const monthDiff = passed.getMonth() - birth.getMonth();
-              if (monthDiff < 0 || (monthDiff === 0 && passed.getDate() < birth.getDate())) {
-                age--;
-              }
-              return age >= 0 ? age : null;
-            } catch {
-              return null;
-            }
-          };
-
-          const age = calculateAge(notice.dob, notice.dop);
-
-          // Format dates
-          const formatDate = (dateString: string): string => {
-            if (!dateString) return "";
-            try {
-              const date = new Date(dateString);
-              return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            } catch {
-              return dateString;
-            }
-          };
-
-          const formatYearRange = (birthDate: string, passedDate: string | null): string => {
-            if (!birthDate && !passedDate) return "";
-            try {
-              const birth = birthDate ? new Date(birthDate).getFullYear() : null;
-              const passed = passedDate ? new Date(passedDate).getFullYear() : null;
-              if (birth && passed) {
-                return `${birth} - ${passed}`;
-              } else if (birth) {
-                return `${birth} -`;
-              } else if (passed) {
-                return `- ${passed}`;
-              }
-              return "";
-            } catch {
-              return "";
-            }
-          };
-
-          const dates = formatYearRange(notice.dob, notice.dop);
-          const date = formatDate(notice.event_date);
-
-          // Get description
-          const description = notice.notice_type === "death_notice" 
-            ? (notice.obituary || "")
-            : (notice.announcement || "");
-
-          // Get service details
-          const service = notice.event_details || "Service details to be announced";
-
-          // Get photo URL
-          const getPhotoUrl = (photoId: string | null): string | null => {
-            if (!photoId) return null;
-            try {
-              const { data } = db.storage
-                .from("notices")
-                .getPublicUrl(photoId);
-              return data.publicUrl;
-            } catch {
-              return null;
-            }
-          };
-
-          const photoUrl = getPhotoUrl(notice.photo_id);
-          const tributeCount = notice.tribute || 0;
-
-          return {
-            id: notice.id || index + 1,
-            name,
-            age: age || 0,
-            dates,
-            location: notice.location,
-            date,
-            description,
-            service,
-            tributes: tributeCount,
-            noticeType: notice.notice_type,
-            photoUrl,
-            tribute: tributeCount,
-          };
-        });
-
-        setUserNotices(transformedNotices);
-      } catch (error) {
+      if (error) {
         console.error("Error fetching user notices:", error);
         setUserNotices([]);
-      } finally {
-        setNoticesLoading(false);
+        return;
       }
-    };
 
+      if (!data || data.length === 0) {
+        setUserNotices([]);
+        return;
+      }
+
+      // Transform notices to match NoticeCard format
+      const transformedNotices = data.map((notice: Notice & { id?: number; tribute?: number }, index: number) => {
+        const nameParts = [
+          notice.first_name,
+          notice.middle_name,
+          notice.maiden_name,
+          notice.last_name
+        ].filter(Boolean);
+        const name = nameParts.join(" ");
+
+        // Calculate age
+        const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
+          if (!birthDate || !passedDate) return null;
+          try {
+            const birth = new Date(birthDate);
+            const passed = new Date(passedDate);
+            let age = passed.getFullYear() - birth.getFullYear();
+            const monthDiff = passed.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && passed.getDate() < birth.getDate())) {
+              age--;
+            }
+            return age >= 0 ? age : null;
+          } catch {
+            return null;
+          }
+        };
+
+        const age = calculateAge(notice.dob, notice.dop);
+
+        // Format dates
+        const formatDate = (dateString: string): string => {
+          if (!dateString) return "";
+          try {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+          } catch {
+            return dateString;
+          }
+        };
+
+        const formatYearRange = (birthDate: string, passedDate: string | null): string => {
+          if (!birthDate && !passedDate) return "";
+          try {
+            const birth = birthDate ? new Date(birthDate).getFullYear() : null;
+            const passed = passedDate ? new Date(passedDate).getFullYear() : null;
+            if (birth && passed) {
+              return `${birth} - ${passed}`;
+            } else if (birth) {
+              return `${birth} -`;
+            } else if (passed) {
+              return `- ${passed}`;
+            }
+            return "";
+          } catch {
+            return "";
+          }
+        };
+
+        const dates = formatYearRange(notice.dob, notice.dop);
+        const date = formatDate(notice.event_date);
+
+        // Get description
+        const description = notice.notice_type === "death_notice" 
+          ? (notice.obituary || "")
+          : (notice.announcement || "");
+
+        // Get service details
+        const service = notice.event_details || "Service details to be announced";
+
+        // Get photo URL
+        const getPhotoUrl = (photoId: string | null): string | null => {
+          if (!photoId) return null;
+          try {
+            const { data } = db.storage
+              .from("notices")
+              .getPublicUrl(photoId);
+            return data.publicUrl;
+          } catch {
+            return null;
+          }
+        };
+
+        const photoUrl = getPhotoUrl(notice.photo_id);
+        const tributeCount = notice.tribute || 0;
+
+        return {
+          id: notice.id || index + 1,
+          name,
+          age: age || 0,
+          dates,
+          location: notice.location,
+          date,
+          description,
+          service,
+          tributes: tributeCount,
+          noticeType: notice.notice_type,
+          photoUrl,
+          tribute: tributeCount,
+        };
+      });
+
+      setUserNotices(transformedNotices);
+    } catch (error) {
+      console.error("Error fetching user notices:", error);
+      setUserNotices([]);
+    } finally {
+      setNoticesLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserNotices();
   }, [user]);
+
+  const handleDeleteNotice = async (noticeId: number) => {
+    if (!window.confirm("Are you sure you want to delete this notice? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const { data: { session } } = await db.auth.getSession();
+      
+      if (!session) {
+        toast.error("You must be logged in to delete a notice");
+        return;
+      }
+
+      // Delete the notice from the database
+      const { error } = await db
+        .from("notices")
+        .delete()
+        .eq("id", noticeId)
+        .eq("user_id", session.user.id); // Ensure user can only delete their own notices
+
+      if (error) {
+        console.error("Error deleting notice:", error);
+        toast.error("Failed to delete notice");
+        return;
+      }
+
+      toast.success("Notice deleted successfully");
+      
+      // Refresh the notices list
+      await fetchUserNotices();
+    } catch (error: any) {
+      console.error("Error deleting notice:", error);
+      toast.error(error.message || "Failed to delete notice");
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -518,7 +554,11 @@ export default function Dashboard() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {userNotices.map((notice) => (
-                  <NoticeCard key={notice.id} notice={notice} />
+                  <NoticeCard 
+                    key={notice.id} 
+                    notice={notice} 
+                    onDelete={() => handleDeleteNotice(notice.id)}
+                  />
                 ))}
               </div>
             )}
