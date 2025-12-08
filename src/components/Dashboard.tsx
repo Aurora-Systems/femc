@@ -279,11 +279,13 @@ export default function Dashboard() {
         organization_name: formData.organization ? formData.organization_name : null,
       };
 
-      const { error } = await db
+      const { error, data } = await db
         .from("users")
         .update(updateData)
-        .eq("user_id", session.user.id);
+        .eq("user_id", session.user.id).single();
 
+      console.log(error);
+      console.log(data)
       if (error) {
         toast.error(error.message || "Failed to update profile");
         setSaving(false);

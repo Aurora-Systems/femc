@@ -170,7 +170,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
 
           <div className="mt-6 bg-slate-50 border rounded-lg p-4">
             <p className="text-sm text-slate-600">
-              This is how your notice will appear on the website. Please review carefully before submitting.
+              This is how your notice will appear on the website. Please review carefully before submitting. Edits will not be allowed after submission. Contact admin if edits need to be made at admin@funeralnotices.co.zw
             </p>
           </div>
 

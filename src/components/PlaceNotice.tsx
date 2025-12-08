@@ -13,6 +13,7 @@ import type { Notice } from "../schemas/noticeSchema";
 import {v4} from "uuid";
 import { routes } from "../init/server";
 import axios from "axios";
+import moment from "moment";
 
 export function PlaceNotice() {
   const navigate = useNavigate();
@@ -123,6 +124,12 @@ export function PlaceNotice() {
   const handleConfirmSubmit = async () => {
     setIsSubmitting(true);
     try {
+
+      if(moment(formData.passedDate).isBefore(moment(formData.birthDate))) {
+        toast.error("Date of passing cannot be before date of birth");
+        setIsSubmitting(false);
+        return;
+      }
       // Get user session
       const { data: { session } } = await db.auth.getSession();
       if (!session) {
