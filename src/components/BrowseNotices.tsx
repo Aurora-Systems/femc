@@ -388,84 +388,6 @@ export function BrowseNotices() {
   return (
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="container mx-auto px-4">
-        {/* Ad Banner */}
-        <div className="mb-8">
-          {adsLoading ? (
-            <div className="w-full h-32 bg-slate-200 rounded-lg flex items-center justify-center">
-              <p className="text-slate-500">Loading ads...</p>
-            </div>
-          ) : ads.length > 0 ? (
-            <Carousel
-              setApi={setCarouselApi}
-              className="w-full"
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-            >
-              <CarouselContent className="gap-2">
-                {ads.map((ad, index) => (
-                  <CarouselItem key={ad.id || index}>
-                    <a
-                      href={ad.link || "#"}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full"
-                      onClick={() => {
-                        // Track click (you might want to increment clicks in the database)
-                        if (ad.id) {
-                          db.from("ads")
-                            .update({ clicks: (ad.clicks || 0) + 1 })
-                            .eq("id", ad.id)
-                            .then(() => {
-                              // Optionally refresh ads to update click count
-                            });
-                        }
-                      }}
-                    >
-                      <Card className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden" style={{paddingBottom:"0px !important"}}>
-                        <CardContent className="p-0 " >
-                          {/* Image on top */}
-                          {ad.photoUrl ? (
-                            <div className="w-full h-48 overflow-hidden">
-                              <ImageWithFallback
-                                src={ad.photoUrl}
-                                alt={ad.name || "Advertisement"}
-                                style={{ objectFit: "cover", width: "300px", height: "100%" }}
-                              />
-                            </div>
-                          ) : (
-                            <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
-                              <p className="text-muted-foreground text-sm">No image</p>
-                            </div>
-                          )}
-                          
-                          {/* Content below image */}
-                          <div className="p-4" style={{paddingBottom:"0px !important"}}>
-                            <h3 className="text-lg font-semibold text-[#0f172a] ">{ad.name}</h3>
-                            {ad.text && (
-                              <p className="text-sm text-slate-600 line-clamp-3">{ad.text}</p>
-                            )}
-                            <a href={ad.link || "#"} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600">Learn More</a>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </a>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              
-            </Carousel>
-          ) : (
-            <div onClick={() => navigate("/contact")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">
-              <div className="text-center p-4">
-                <p className="text-lg font-semibold text-[#0f172a] mb-1">Contact us to advertise here</p>
-                <p className="text-sm text-slate-600">Reach thousands of visitors</p>
-              </div>
-            </div>
-          )}
-        </div>
-
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl md:text-4xl text-[#0f172a] mb-2">Browse Funeral Notices</h1>
           <p className="text-sm sm:text-base text-slate-600">Search and view all funeral notices</p>
@@ -516,36 +438,120 @@ export function BrowseNotices() {
           )}
         </div>
 
-        {isLoading ? (
-          <div className="text-center py-12 text-slate-600">
-            Loading notices...
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Notices Section */}
+          <div className="flex-1">
+            {isLoading ? (
+              <div className="text-center py-12 text-slate-600">
+                Loading notices...
+              </div>
+            ) : filteredNotices.length === 0 ? (
+              <div className="text-center py-12 text-slate-600">
+                {searchQuery ? "No notices found matching your search." : "No notices available."}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {filteredNotices.map((notice) => (
+                    <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
+                  ))}
+                </div>
+                {/* Infinite scroll sentinel */}
+                <div ref={observerTarget} className="h-10 flex items-center justify-center">
+                  {isLoadingMore && (
+                    <div className="text-center py-8 text-slate-600">
+                      Loading more notices...
+                    </div>
+                  )}
+                  {!hasMore && filteredNotices.length > 0 && (
+                    <div className="text-center py-8 text-slate-600">
+                      No more notices to load.
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
-        ) : filteredNotices.length === 0 ? (
-          <div className="text-center py-12 text-slate-600">
-            {searchQuery ? "No notices found matching your search." : "No notices available."}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {filteredNotices.map((notice) => (
-                <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
-              ))}
-            </div>
-            {/* Infinite scroll sentinel */}
-            <div ref={observerTarget} className="h-10 flex items-center justify-center">
-              {isLoadingMore && (
-                <div className="text-center py-8 text-slate-600">
-                  Loading more notices...
+
+          {/* Ad Sidebar */}
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <div className="sticky top-8">
+              {adsLoading ? (
+                <div className="w-full h-32 bg-slate-200 rounded-lg flex items-center justify-center">
+                  <p className="text-slate-500">Loading ads...</p>
+                </div>
+              ) : ads.length > 0 ? (
+                <Carousel
+                  setApi={setCarouselApi}
+                  className="w-full"
+                  opts={{
+                    align: "start",
+                    loop: true,
+                  }}
+                >
+                  <CarouselContent className="gap-2">
+                    {ads.map((ad, index) => (
+                      <CarouselItem key={ad.id || index}>
+                        <a
+                          href={ad.link || "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full"
+                          onClick={() => {
+                            // Track click (you might want to increment clicks in the database)
+                            if (ad.id) {
+                              db.from("ads")
+                                .update({ clicks: (ad.clicks || 0) + 1 })
+                                .eq("id", ad.id)
+                                .then(() => {
+                                  // Optionally refresh ads to update click count
+                                });
+                            }
+                          }}
+                        >
+                          <Card className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden" style={{paddingBottom:"0px !important"}}>
+                            <CardContent className="p-0 " >
+                              {/* Image on top */}
+                              {ad.photoUrl ? (
+                                <div className="w-full h-48 overflow-hidden">
+                                  <ImageWithFallback
+                                    src={ad.photoUrl}
+                                    alt={ad.name || "Advertisement"}
+                                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
+                                  <p className="text-muted-foreground text-sm">No image</p>
+                                </div>
+                              )}
+                              
+                              {/* Content below image */}
+                              <div className="p-4" style={{paddingBottom:"0px !important"}}>
+                                <h3 className="text-lg font-semibold text-[#0f172a] ">{ad.name}</h3>
+                                {ad.text && (
+                                  <p className="text-sm text-slate-600 line-clamp-3">{ad.text}</p>
+                                )}
+                                <a href={ad.link || "#"} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600">Learn More</a>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </a>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                </Carousel>
+              ) : (
+                <div onClick={() => navigate("/contact")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer">
+                  <div className="text-center p-4">
+                    <p className="text-lg font-semibold text-[#0f172a] mb-1">Contact us to advertise here</p>
+                    <p className="text-sm text-slate-600">Reach thousands of visitors</p>
+                  </div>
                 </div>
               )}
-              {!hasMore && filteredNotices.length > 0 && (
-                <div className="text-center py-8 text-slate-600">
-                  No more notices to load.
-                </div>
-              )}
             </div>
-          </>
-        )}
+          </div>
+        </div>
       </div>
     </div>
   );
