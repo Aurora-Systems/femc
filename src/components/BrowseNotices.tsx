@@ -1,4 +1,4 @@
-import React,{ useState, useEffect } from "react";
+import React,{ useState, useEffect, useRef, useCallback } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
@@ -30,6 +30,11 @@ export function BrowseNotices() {
   const [filteredNotices, setFilteredNotices] = useState<NoticeCardData[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const observerTarget = useRef<HTMLDivElement>(null);
+  const NOTICES_PER_PAGE = 20;
 
   const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
     if (!birthDate || !passedDate) return null;
@@ -140,12 +145,19 @@ export function BrowseNotices() {
     };
   };
 
-  const fetchNotices = async (searchTerm: string = "") => {
+  const fetchNotices = useCallback(async (searchTerm: string = "", pageNum: number = 0, append: boolean = false) => {
     try {
-      setIsLoading(true);
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
+
       let query = db
         .from("notices")
-        .select("*").eq("active", true).order("id",{ascending: false});
+        .select("*")
+        .eq("active", true)
+        .order("id", { ascending: false });
 
       // If there's a search term, filter the database query
       if (searchTerm.trim()) {
@@ -164,51 +176,114 @@ export function BrowseNotices() {
         query = query.or(orConditions);
       }
 
-      const { data, error } = await query.order("event_date", { ascending: false });
+      // Apply pagination
+      const from = pageNum * NOTICES_PER_PAGE;
+      const to = from + NOTICES_PER_PAGE - 1;
+      
+      const { data, error } = await query
+        .order("event_date", { ascending: false })
+        .range(from, to);
 
       if (error) {
         console.error("Error fetching notices:", error);
-        setFilteredNotices([]);
+        if (!append) {
+          setFilteredNotices([]);
+        }
         return;
       }
 
       if (!data || data.length === 0) {
-        setFilteredNotices([]);
+        if (!append) {
+          setFilteredNotices([]);
+        }
+        setHasMore(false);
         return;
       }
 
       // Transform notices
       const transformedNotices: NoticeCardData[] = data.map(
         (notice: Notice & { id?: number; tribute?: number }, index: number) => 
-          transformNotice(notice, index)
+          transformNotice(notice, from + index)
       );
 
-      setFilteredNotices(transformedNotices);
+      if (append) {
+        setFilteredNotices(prev => [...prev, ...transformedNotices]);
+      } else {
+        setFilteredNotices(transformedNotices);
+      }
+
+      // Check if there are more notices to load
+      setHasMore(data.length === NOTICES_PER_PAGE);
     } catch (error) {
       console.error("Error fetching notices:", error);
-      setFilteredNotices([]);
+      if (!append) {
+        setFilteredNotices([]);
+      }
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
-  };
-
-  useEffect(() => {
-    fetchNotices();
   }, []);
 
+  // Initial fetch
+  useEffect(() => {
+    setPage(0);
+    setHasMore(true);
+    fetchNotices("", 0, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasMore || isLoading || isLoadingMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prevPage) => {
+            const nextPage = prevPage + 1;
+            fetchNotices(searchQuery, nextPage, true);
+            return nextPage;
+          });
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isLoading, isLoadingMore, searchQuery, fetchNotices]);
+
   const handleSearch = () => {
-    fetchNotices(searchQuery);
+    setPage(0);
+    setHasMore(true);
+    setFilteredNotices([]);
+    fetchNotices(searchQuery, 0, false);
   };
 
   const handleClear = () => {
     setSearchQuery("");
-    fetchNotices();
+    setPage(0);
+    setHasMore(true);
+    setFilteredNotices([]);
+    fetchNotices("", 0, false);
   };
 
-  const handleTributeUpdate = () => {
+  const handleTributeUpdate = useCallback(() => {
     // Refresh the notices to get updated tribute counts
-    fetchNotices(searchQuery);
-  };
+    // Reset to first page when tribute is updated
+    setPage(0);
+    setHasMore(true);
+    fetchNotices(searchQuery, 0, false);
+  }, [searchQuery, fetchNotices]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -272,11 +347,26 @@ export function BrowseNotices() {
             {searchQuery ? "No notices found matching your search." : "No notices available."}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredNotices.map((notice) => (
-              <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {filteredNotices.map((notice) => (
+                <NoticeCard key={notice.id} notice={notice} onTributeUpdate={handleTributeUpdate} />
+              ))}
+            </div>
+            {/* Infinite scroll sentinel */}
+            <div ref={observerTarget} className="h-10 flex items-center justify-center">
+              {isLoadingMore && (
+                <div className="text-center py-8 text-slate-600">
+                  Loading more notices...
+                </div>
+              )}
+              {!hasMore && filteredNotices.length > 0 && (
+                <div className="text-center py-8 text-slate-600">
+                  No more notices to load.
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
     </div>
