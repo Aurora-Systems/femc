@@ -5,6 +5,7 @@ interface Ad{
     photo_id:string,
     expires:string,
     clicks:number,
+    user_id:string
 }
 
 export default Ad;

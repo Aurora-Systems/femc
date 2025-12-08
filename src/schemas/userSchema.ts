@@ -6,4 +6,6 @@ export interface User {
    email:string,
    contact_number:string,
    organization_name:string|null,
+   is_admin:boolean
+
 }

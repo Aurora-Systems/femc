@@ -2,6 +2,7 @@ import React,{ useState, useEffect, useRef, useCallback } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { Card, CardContent } from "./ui/card";
 import { NoticeCard } from "./NoticeCard";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "./ui/carousel";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
@@ -402,7 +403,7 @@ export function BrowseNotices() {
                 loop: true,
               }}
             >
-              <CarouselContent>
+              <CarouselContent className="gap-2">
                 {ads.map((ad, index) => (
                   <CarouselItem key={ad.id || index}>
                     <a
@@ -422,32 +423,38 @@ export function BrowseNotices() {
                         }
                       }}
                     >
-                      <div className="relative w-full h-32 md:h-40 bg-slate-100 rounded-lg overflow-hidden">
-                        {ad.photoUrl ? (
-                          <ImageWithFallback
-                            src={ad.photoUrl}
-                            alt={ad.name || "Advertisement"}
-                            style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-slate-200">
-                            <div className="text-center p-4">
-                              <h3 className="text-lg font-semibold text-[#0f172a] mb-2">{ad.name}</h3>
-                              {ad.text && <p className="text-sm text-slate-600">{ad.text}</p>}
+                      <Card className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden" style={{paddingBottom:"0px !important"}}>
+                        <CardContent className="p-0 " >
+                          {/* Image on top */}
+                          {ad.photoUrl ? (
+                            <div className="w-full h-48 overflow-hidden">
+                              <ImageWithFallback
+                                src={ad.photoUrl}
+                                alt={ad.name || "Advertisement"}
+                                style={{ objectFit: "cover", width: "300px", height: "100%" }}
+                              />
                             </div>
+                          ) : (
+                            <div className="w-full h-48 bg-slate-200 flex items-center justify-center">
+                              <p className="text-muted-foreground text-sm">No image</p>
+                            </div>
+                          )}
+                          
+                          {/* Content below image */}
+                          <div className="p-4" style={{paddingBottom:"0px !important"}}>
+                            <h3 className="text-lg font-semibold text-[#0f172a] ">{ad.name}</h3>
+                            {ad.text && (
+                              <p className="text-sm text-slate-600 line-clamp-3">{ad.text}</p>
+                            )}
+                            <a href={ad.link || "#"} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600">Learn More</a>
                           </div>
-                        )}
-                      </div>
+                        </CardContent>
+                      </Card>
                     </a>
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              {ads.length > 1 && (
-                <>
-                  <CarouselPrevious className="left-2" />
-                  <CarouselNext className="right-2" />
-                </>
-              )}
+              
             </Carousel>
           ) : (
             <div onClick={() => navigate("/contact")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300">

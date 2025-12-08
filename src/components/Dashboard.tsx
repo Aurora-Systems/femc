@@ -23,6 +23,7 @@ export default function Dashboard() {
     email: "",
     contact_number: "",
     organization_name: null,
+    is_admin: false,
   });
   const [userNotices, setUserNotices] = useState<any[]>([]);
   const [noticesLoading, setNoticesLoading] = useState(true);
@@ -60,6 +61,7 @@ export default function Dashboard() {
           email: profile.email,
           contact_number: profile.contact_number,
           organization_name: profile.organization_name,
+          is_admin: profile.is_admin,
         });
       } catch (error: any) {
         toast.error("Failed to load user data");
@@ -266,6 +268,7 @@ export default function Dashboard() {
         email: user.email,
         contact_number: user.contact_number,
         organization_name: user.organization_name,
+        is_admin: user.is_admin,
       });
       setIsEditing(true);
     }
@@ -281,6 +284,7 @@ export default function Dashboard() {
         email: user.email,
         contact_number: user.contact_number,
         organization_name: user.organization_name,
+        is_admin: user.is_admin,
       });
     }
   };
@@ -378,6 +382,13 @@ export default function Dashboard() {
             <Button onClick={() => navigate("/place")}>
               Place a Notice
             </Button>
+            {
+              user.is_admin && (
+                <Button onClick={() => navigate("/manage_ads")}>
+                  Manage Ads
+                </Button>
+              )
+            }
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
             </Button>
