@@ -19,6 +19,7 @@ interface NoticePreviewProps {
     serviceDetails?: string;
     photo?: string;
     noticeType: string;
+    organizationName?: string;
   };
   onClose: () => void;
   onConfirm: () => void | Promise<void>;
@@ -49,6 +50,7 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
   };
 
   const isDeathNotice = noticeData.noticeType === "Death Notice";
+  const isCondolenceNotice = noticeData.noticeType === "Condolences Notice";
   const age = noticeData.birthDate && noticeData.passedDate 
     ? calculateAge(noticeData.birthDate, noticeData.passedDate) 
     : null;
@@ -89,24 +91,32 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
             <div className="relative w-full bg-slate-200" style={{ aspectRatio: '1/1' }}>
               <ImageWithFallback
                 src={imageSrc}
-                alt={`${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
+                alt={isCondolenceNotice && noticeData.organizationName 
+                  ? noticeData.organizationName 
+                  : `${noticeData.firstName} ${noticeData.middleName || ""} ${noticeData.lastName}`.trim()}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="ps-6 pe-6 pb-6 pt-2">
-              <h3 className="text-xl text-[#0f172a] mb-1">
-                {[
-                  noticeData.firstName,
-                  noticeData.middleName,
-                  noticeData.nickname && `"${noticeData.nickname}"`,
-                  noticeData.lastName
-                ].filter(Boolean).join(" ")}
-                {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
-                  <span className="text-slate-600 font-normal">
-                    {" "}(née {noticeData.maidenName})
-                  </span>
-                )}
-              </h3>
+              {isCondolenceNotice && noticeData.organizationName ? (
+                <h3 className="text-xl text-[#0f172a] mb-1">
+                  {noticeData.organizationName}
+                </h3>
+              ) : (
+                <h3 className="text-xl text-[#0f172a] mb-1">
+                  {[
+                    noticeData.firstName,
+                    noticeData.middleName,
+                    noticeData.nickname && `"${noticeData.nickname}"`,
+                    noticeData.lastName
+                  ].filter(Boolean).join(" ")}
+                  {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
+                    <span className="text-slate-600 font-normal">
+                      {" "}(née {noticeData.maidenName})
+                    </span>
+                  )}
+                </h3>
+              )}
               <div className="flex items-start justify-between mb-4">
                 {isDeathNotice ? (
                   <>
@@ -141,10 +151,12 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
               </div>
 
               <div className="text-sm text-slate-600 mb-4">
+                {!isCondolenceNotice &&
                 <div className="flex items-center gap-1">
                   <MapPin className="h-4 w-4" />
                   <span>{noticeData.location}</span>
                 </div>
+}
                 {noticeData.passedDate && (
                   <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />

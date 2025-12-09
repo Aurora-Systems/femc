@@ -151,30 +151,43 @@ export function BrowseNotices() {
   };
 
 
-  const transformNotice = (notice: Notice & { id?: number; tribute?: number }, index: number): NoticeCardData => {
-    // Build full name
-    const nameParts = [
-      notice.first_name,
-      notice.middle_name,
-      notice.maiden_name,
-      notice.last_name
-    ].filter(Boolean);
-    const name = nameParts.join(" ");
+  const transformNotice = (notice: Notice & { id?: number; tribute?: number; organization_name?: string | null }, index: number): NoticeCardData => {
+    // For condolence notices, use organization_name as the name
+    const isCondolence = notice.notice_type === "condolence";
+    
+    let name: string;
+    if (isCondolence && notice.organization_name) {
+      name = notice.organization_name;
+    } else {
+      // Build full name from name parts
+      const nameParts = [
+        notice.first_name,
+        notice.middle_name,
+        notice.maiden_name,
+        notice.last_name
+      ].filter(Boolean);
+      name = nameParts.join(" ");
+    }
 
-    // Calculate age
-    const age = calculateAge(notice.dob, notice.dop);
+    // Calculate age (not applicable for condolence notices)
+    const age = isCondolence ? 0 : calculateAge(notice.dob, notice.dop);
 
-    // Format dates
-    const dates = formatYearRange(notice.dob, notice.dop);
-    const date = formatDate(notice.event_date);
+    // Format dates (not applicable for condolence notices)
+    const dates = isCondolence ? "" : formatYearRange(notice.dob, notice.dop);
+    const date = isCondolence ? "" : formatDate(notice.event_date);
 
-    // Get description (obituary for death notices, announcement for others)
-    const description = notice.notice_type === "death_notice" 
+    // Get description
+    // For condolence notices, obituary contains the condolence text
+    // For death notices, obituary contains the obituary
+    // For others, announcement contains the announcement
+    const description = notice.notice_type === "condolence"
       ? (notice.obituary || "")
-      : (notice.announcement || "");
+      : notice.notice_type === "death_notice" 
+        ? (notice.obituary || "")
+        : (notice.announcement || "");
 
-    // Get service details
-    const service = notice.event_details || "Service details to be announced";
+    // Get service details (not applicable for condolence notices)
+    const service = isCondolence ? "" : (notice.event_details || "Service details to be announced");
 
     // Get photo URL
     const photoUrl = getPhotoUrl(notice.photo_id);
@@ -185,14 +198,14 @@ export function BrowseNotices() {
     return {
       id: notice.id || index + 1,
       name,
-      firstName: notice.first_name || null,
-      lastName: notice.last_name || null,
-      middleName: notice.middle_name || null,
-      maidenName: notice.maiden_name || null,
-      nickname: notice.nickname || null,
+      firstName: isCondolence ? null : (notice.first_name || null),
+      lastName: isCondolence ? null : (notice.last_name || null),
+      middleName: isCondolence ? null : (notice.middle_name || null),
+      maidenName: isCondolence ? null : (notice.maiden_name || null),
+      nickname: isCondolence ? null : (notice.nickname || null),
       age: age || 0,
       dates,
-      location: notice.location,
+      location: isCondolence ? "" : notice.location,
       date,
       description,
       service,
@@ -221,6 +234,7 @@ export function BrowseNotices() {
       if (searchTerm.trim()) {
         const searchLower = `%${searchTerm.toLowerCase().trim()}%`;
         // Use or() to search across multiple fields with ilike (case-insensitive pattern matching)
+        // Include organization_name for condolence notices
         const orConditions = [
           `first_name.ilike.${searchLower}`,
           `last_name.ilike.${searchLower}`,
@@ -229,7 +243,8 @@ export function BrowseNotices() {
           `nickname.ilike.${searchLower}`,
           `location.ilike.${searchLower}`,
           `obituary.ilike.${searchLower}`,
-          `announcement.ilike.${searchLower}`
+          `announcement.ilike.${searchLower}`,
+          `organization_name.ilike.${searchLower}`
         ].join(',');
         query = query.or(orConditions);
       }

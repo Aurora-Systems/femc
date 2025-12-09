@@ -107,7 +107,7 @@ export default function AuthenticationPage() {
     >
       <div className="absolute inset-0 bg-black/40"></div>
       <Card className="relative z-10 shadow-2xl border-0 bg-white card-auth " style={{width:"350px"}}>
-        <CardHeader className="space-y-4 pb-6">
+        <CardHeader className="space-y-4 pb-2">
           <div className="flex justify-center">
             <div className="rounded-full bg-primary/10 p-3">
               {step === "email" ? (

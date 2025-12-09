@@ -35,6 +35,7 @@ export function PlaceNotice() {
     photo: "",
     noticeType: "Death Notice",
     relationship: "",
+    organizationName: "",
   });
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,7 +51,9 @@ export function PlaceNotice() {
         ? "Death Notice"
         : noticeType === "memorial_service"
           ? "Memorial Service"
-          : "Tombstone Unveiling";
+          : noticeType === "tombstone_unveiling"
+            ? "Tombstone Unveiling"
+            : "Condolences Notice";
 
     setFormData({
       ...formData,
@@ -125,10 +128,13 @@ export function PlaceNotice() {
     setIsSubmitting(true);
     try {
 
-      if(moment(formData.passedDate).isBefore(moment(formData.birthDate))) {
-        toast.error("Date of passing cannot be before date of birth");
-        setIsSubmitting(false);
-        return;
+      // Only validate dates for non-condolence notices
+      if (noticeType !== "condolence" && formData.passedDate && formData.birthDate) {
+        if(moment(formData.passedDate).isBefore(moment(formData.birthDate))) {
+          toast.error("Date of passing cannot be before date of birth");
+          setIsSubmitting(false);
+          return;
+        }
       }
       // Get user session
       const { data: { session } } = await db.auth.getSession();
@@ -138,8 +144,31 @@ export function PlaceNotice() {
         return;
       }
 
+      // Fetch user profile to get organization_name for condolence notices
+      let organizationName: string | null = null;
+      if (noticeType === "condolence") {
+        const { data: profile } = await db
+          .from("users")
+          .select("organization_name")
+          .eq("user_id", session.user.id)
+          .single();
+        organizationName = profile?.organization_name || null;
+
+      }
+
       // Validate required fields
-      if (isIndividual) {
+      if (noticeType === "condolence") {
+        if (!photoFile) {
+          toast.error("Please upload a photo");
+          setIsSubmitting(false);
+          return;
+        }
+        if (!formData.obituary || formData.obituary.trim() === "") {
+          toast.error("Please enter condolence text");
+          setIsSubmitting(false);
+          return;
+        }
+      } else if (isIndividual) {
         if (!formData.firstName || !formData.lastName || !formData.location || !formData.passedDate || !formData.obituary) {
           toast.error("Please fill in all required fields");
           setIsSubmitting(false);
@@ -158,29 +187,39 @@ export function PlaceNotice() {
           return;
         }
       }
+      
+      // For condolence notices, photo is required
+      if (noticeType === "condolence" && !photoFileName) {
+        toast.error("Failed to upload photo. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
 
       // Map form data to schema
-      const noticeData: Notice & {currency:"usd"|"ZiG", total: number} = {
+      const noticeData: Notice & {currency:"usd"|"ZiG", total: number, organization_name?: string | null} = {
         notice_type: noticeType,
         user_id: session.user.id,
-        first_name: formData.firstName,
-        middle_name: formData.middleName || null,
-        maiden_name: formData.maidenName || null,
-        nickname: formData.nickname || null,
-        last_name: formData.lastName,
-        location: formData.location,
-        dob: formData.birthDate || "",
-        dop: noticeType === "death_notice" 
-          ? formData.passedDate 
-          : (noticeType === "memorial_service" || noticeType === "tombstone_unveiling")
-            ? (formData.dateOfPassing || null)
-            : null,
-        event_date: formData.passedDate,
-        event_details: formData.serviceDetails || "",
-        obituary: noticeType === "death_notice" ? formData.obituary : null,
-        announcement: noticeType !== "death_notice" ? formData.obituary : null,
+        first_name: noticeType === "condolence" ? "" : formData.firstName,
+        middle_name: noticeType === "condolence" ? null : (formData.middleName || null),
+        maiden_name: noticeType === "condolence" ? null : (formData.maidenName || null),
+        nickname: noticeType === "condolence" ? null : (formData.nickname || null),
+        last_name: noticeType === "condolence" ? "" : formData.lastName,
+        location: noticeType === "condolence" ? "" : formData.location,
+        dob: noticeType === "condolence" ? "" : (formData.birthDate || ""),
+        dop: noticeType === "condolence" 
+          ? null 
+          : noticeType === "death_notice" 
+            ? formData.passedDate 
+            : (noticeType === "memorial_service" || noticeType === "tombstone_unveiling")
+              ? (formData.dateOfPassing || null)
+              : null,
+        event_date: noticeType === "condolence" ? "" : formData.passedDate,
+        event_details: noticeType === "condolence" ? "" : (formData.serviceDetails || ""),
+        obituary: noticeType === "condolence" ? formData.obituary : (noticeType === "death_notice" ? formData.obituary : null),
+        announcement: noticeType === "condolence" ? null : (noticeType !== "death_notice" ? formData.obituary : null),
         photo_id: photoFileName || null,
-        relationship: formData.relationship || "",
+        relationship: noticeType === "condolence" ? "" : (formData.relationship || ""),
+        organization_name: noticeType === "condolence" ? (organizationName || null) : null,
         active: false,
         reference_number: null,
         redirect_url: null,
@@ -218,7 +257,7 @@ export function PlaceNotice() {
   };
 
   const price =
-      accountType === "individual" ? "$9.99" : "$9.99";
+      accountType === "individual" ? "$9.99" : "$19.99";
 
     // accountType === "individual" ? "$9.99" : "$19.99";
   const isIndividual = accountType === "individual";
@@ -241,12 +280,16 @@ export function PlaceNotice() {
     // Automatically set account type based on user's organization status
     if (profile.organization) {
       setAccountType("corporate");
-      set_total(9.99)
+      set_total(0.01)
       // set_total(19.99);
+      // Set organization name in form data for condolence notices
+      if (profile.organization_name) {
+        setFormData(prev => ({ ...prev, organizationName: profile.organization_name }));
+      }
     } else {
       setAccountType("individual");
-      set_total(9.99)
-      // set_total(9.99);
+      // set_total(9.99)
+      set_total(0.01);
     }
     setIsOnboarded(true);
   }
@@ -286,7 +329,7 @@ export function PlaceNotice() {
                 <Label className="text-base mb-3 block">
                   Notice Type *
                 </Label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className={`grid grid-cols-1 ${isIndividual ? 'md:grid-cols-3' : 'md:grid-cols-4'} gap-4`}>
                   <button
                     type="button"
                     onClick={() => setNoticeType("death_notice")}
@@ -335,11 +378,29 @@ export function PlaceNotice() {
                       Unveiling ceremony notice
                     </p>
                   </button>
+                  {!isIndividual && (
+                    <button
+                      type="button"
+                      onClick={() => setNoticeType("condolence")}
+                      className={`p-4 border-2 rounded-lg text-left transition-all ${
+                        noticeType === "condolence"
+                          ? "border-[#0f172a] bg-slate-50"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <h4 className="text-[#0f172a] mb-1">
+                        Condolences Notice
+                      </h4>
+                      <p className="text-xs text-slate-600">
+                        Post a condolence message
+                      </p>
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Corporate Flyer Upload (Only for Corporate) */}
-              {!isIndividual && (
+              {/* Corporate Flyer Upload (Only for Corporate, not for Condolence) */}
+              {!isIndividual && noticeType !== "condolence" && (
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
                   <div className="flex items-center gap-2 mb-4">
                     <FileImage className="h-5 w-5 text-purple-700" />
@@ -387,14 +448,73 @@ export function PlaceNotice() {
                 </div>
               )}
 
-              {/* Standard Notice Details */}
-              <div>
-                {!isIndividual && (
-                  <p className="text-sm text-slate-600 mb-4">
-                    Fill in these details to provide additional information
-                    along with your flyer, or use them to generate a notice.
-                  </p>
-                )}
+              {/* Condolence Notice - Simplified Form */}
+              {noticeType === "condolence" && !isIndividual ? (
+                <div className="space-y-6">
+                  <div>
+                    <Label>
+                      Upload Photo *
+                    </Label>
+                    <div
+                      onClick={() => handlePhotoAreaClick("photo-condolence")}
+                      className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-[#0f172a] transition-colors cursor-pointer block"
+                    >
+                      <input
+                        id="photo-condolence"
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handlePhotoChange}
+                        className="hidden"
+                      />
+                      <Upload className="h-10 w-10 text-slate-400 mx-auto mb-2" />
+                      <p className="text-sm text-slate-600 mb-1">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        PNG, JPG up to 5MB
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        Recommended size: 1080x1080px for best view
+                      </p>
+                      {photoFile && (
+                        <p className="text-xs text-green-600 mt-2">
+                          Selected: {photoFile.name}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="obituary">
+                      Condolence Text *
+                    </Label>
+                    <Textarea
+                      id="obituary"
+                      placeholder="Enter your condolence message..."
+                      className="mt-1 min-h-[150px]"
+                      value={formData.obituary}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          obituary: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Maximum 500 words
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* Standard Notice Details */
+                <div>
+                  {!isIndividual && (
+                    <p className="text-sm text-slate-600 mb-4">
+                      Fill in these details to provide additional information
+                      along with your flyer, or use them to generate a notice.
+                    </p>
+                  )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div>
@@ -603,33 +723,35 @@ export function PlaceNotice() {
                   </div>
                 )}
 
-                <div className="mt-6">
-                  <Label htmlFor="obituary">
-                    {noticeType === "death_notice"
-                      ? "Obituary / Tribute *"
-                      : "Announcement Details *"}
-                  </Label>
-                  <Textarea
-                    id="obituary"
-                    placeholder={
-                      noticeType === "death_notice"
-                        ? "Share memories and details about your loved one..."
-                        : "Provide details about the event..."
-                    }
-                    className="mt-1 min-h-[150px]"
-                    value={formData.obituary}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        obituary: e.target.value,
-                      })
-                    }
-                    required={isIndividual}
-                  />
-                  <p className="text-xs text-slate-500 mt-1">
-                    Maximum 500 words
-                  </p>
-                </div>
+                {noticeType !== "condolence" && (
+                  <div className="mt-6">
+                    <Label htmlFor="obituary">
+                      {noticeType === "death_notice"
+                        ? "Obituary / Tribute *"
+                        : "Announcement Details *"}
+                    </Label>
+                    <Textarea
+                      id="obituary"
+                      placeholder={
+                        noticeType === "death_notice"
+                          ? "Share memories and details about your loved one..."
+                          : "Provide details about the event..."
+                      }
+                      className="mt-1 min-h-[150px]"
+                      value={formData.obituary}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          obituary: e.target.value,
+                        })
+                      }
+                      required={isIndividual}
+                    />
+                    <p className="text-xs text-slate-500 mt-1">
+                      Maximum 500 words
+                    </p>
+                  </div>
+                )}
 
                 <div className="mt-6">
                   <Label htmlFor="serviceDetails">
@@ -685,7 +807,8 @@ export function PlaceNotice() {
                     </div>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-6">
                 <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -717,7 +840,10 @@ export function PlaceNotice() {
       {/* Preview Modal */}
       {showPreview && (
         <NoticePreview
-          noticeData={formData}
+          noticeData={{
+            ...formData,
+            organizationName: noticeType === "condolence" ? formData.organizationName : undefined,
+          }}
           onClose={() => setShowPreview(false)}
           onConfirm={handleConfirmSubmit}
           isSubmitting={isSubmitting}

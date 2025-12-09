@@ -1,5 +1,5 @@
 export interface Notice {
-    notice_type: "death_notice" | "memorial_service" | "tombstone_unveiling"
+    notice_type: "death_notice" | "memorial_service" | "tombstone_unveiling" | "condolence"
     user_id: string,
     first_name: string,
     middle_name: string|null,
@@ -19,4 +19,5 @@ export interface Notice {
     reference_number:string|null, // reference number of the notice
     redirect_url:string|null, // redirect url of the notice
     tribute?:number|null, // tribute count
+    organization_name:string|null, // organization name
 }

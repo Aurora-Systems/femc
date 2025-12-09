@@ -21,6 +21,7 @@ interface Notice {
   noticeType?: string;
   photoUrl?: string | null;
   tribute?:number|null;
+  organization_name?:string|null;
 }
 
 interface NoticeCardProps {
@@ -115,6 +116,8 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         return "Memorial Service";
       case "tombstone_unveiling":
         return "Tombstone Unveiling";
+      case "condolence":
+        return "Condolences Notice";
       default:
         return type;
     }
@@ -129,6 +132,8 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         return "bg-blue-900";
       case "tombstone_unveiling":
         return "bg-purple-900";
+      case "condolence":
+        return "bg-green-900";
       default:
         return "bg-slate-900";
     }
@@ -156,38 +161,44 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         <h3 className="text-xl text-[#0f172a] mb-1">
           {notice.name}
         </h3>
-        <div className="flex items-start justify-between mb-4">
-          <p className="text-slate-600 mb-3">{notice.dates}</p>
+        {notice.noticeType !== "condolence" && (
+          <>
+            <div className="flex items-start justify-between mb-4">
+              <p className="text-slate-600 mb-3">{notice.dates}</p>
 
-          <Badge
-            variant="outline"
-            className="border-[#0f172a] text-[#0f172a]"
-          >
-            Age {notice.age}
-          </Badge>
-        </div>
+              <Badge
+                variant="outline"
+                className="border-[#0f172a] text-[#0f172a]"
+              >
+                Age {notice.age}
+              </Badge>
+            </div>
 
-        <div className=" text-sm text-slate-600 mb-4">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-4 w-4" />
-            <span>{notice.location}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <span>{notice.date}</span>
-          </div>
-        </div>
+            <div className=" text-sm text-slate-600 mb-4">
+              <div className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                <span>{notice.location}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>{notice.date}</span>
+              </div>
+            </div>
+          </>
+        )}
 
         <p className="text-slate-700 mb-4 line-clamp-3">
           {notice.description}
         </p>
 
-        <div className="bg-slate-50 rounded p-3 mb-4">
-          <p className="text-sm text-slate-700 line-clamp-3">
-            <span className="text-[#0f172a]">Service:</span>{" "}
-            {notice.service}
-          </p>
-        </div>
+        {notice.noticeType !== "condolence" && notice.service && (
+          <div className="bg-slate-50 rounded p-3 mb-4">
+            <p className="text-sm text-slate-700 line-clamp-3">
+              <span className="text-[#0f172a]">Service:</span>{" "}
+              {notice.service}
+            </p>
+          </div>
+        )}
 
         <div className="flex items-center justify-between gap-2">
           <button
