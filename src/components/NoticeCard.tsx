@@ -158,9 +158,9 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         />
       </div>
       <div className="ps-6 pe-6 pb-6 pt-2">
-        <h3 className="text-xl text-[#0f172a] mb-1">
+       {notice.noticeType !== "condolence" && <h3 className="text-xl text-[#0f172a] mb-1">
           {notice.name}
-        </h3>
+        </h3>}
         {notice.noticeType !== "condolence" && (
           <>
             <div className="flex items-start justify-between mb-4">
@@ -190,6 +190,12 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
         <p className="text-slate-700 mb-4 line-clamp-3">
           {notice.description}
         </p>
+        {notice.noticeType === "condolence" && (
+          <p className="text-slate-700 mb-4">
+            <span className="text-[#0f172a]">Posted by:</span>{" "}
+            {notice.name}
+          </p>
+        )}
 
         {notice.noticeType !== "condolence" && notice.service && (
           <div className="bg-slate-50 rounded p-3 mb-4">
