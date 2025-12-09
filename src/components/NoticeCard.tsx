@@ -215,7 +215,7 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
             <Heart className={`h-4 w-4 ${isUpdating ? 'animate-pulse' : ''} fill-[#0f172a] text-[#0f172a] hover:fill-rose-600 hover:text-rose-600 transition-colors`} />
             <span>{tributes} tributes</span>
           </button>
-          <div className="flex md:flex-row flex-col gap-2">
+          <div className="flex md:flex-row md:flex-wrap flex-col gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -235,7 +235,7 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
             </Button>
             {onDelete && (
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
                 className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white "
                 onClick={(e) => {
@@ -243,7 +243,7 @@ export function NoticeCard({ notice, onTributeUpdate, onDelete }: NoticeCardProp
                   onDelete();
                 }}
               >
-                <Trash2 className="h-4 w-4" /> Remove From Site
+                <Trash2 className="h-4 w-4" /> 
               </Button>
             )}
           </div>
