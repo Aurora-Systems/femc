@@ -68,6 +68,8 @@ export function NoticeDetail() {
         return "Memorial Service";
       case "tombstone_unveiling":
         return "Tombstone Unveiling";
+      case "condolence":
+        return "Condolence Notice";
       default:
         return type;
     }
@@ -82,6 +84,8 @@ export function NoticeDetail() {
         return "bg-blue-900";
       case "tombstone_unveiling":
         return "bg-purple-900";
+      case "condolence":
+        return "bg-slate-900";
       default:
         return "bg-slate-900";
     }
@@ -95,6 +99,8 @@ export function NoticeDetail() {
         return "https://funeralnotices.sirv.com/3.png";
       case "tombstone_unveiling":
         return "https://funeralnotices.sirv.com/2.png";
+      case "condolence":
+        return "https://funeralnotices.sirv.com/1.png";
       default:
         return "https://funeralnotices.sirv.com/1.png";
     }
@@ -176,24 +182,29 @@ export function NoticeDetail() {
     );
   }
 
-  // Build full name
+  // Build full name (for condolence notices, use organization_name)
+  const isCondolence = notice.notice_type === "condolence";
   const nameParts = [
     notice.first_name,
     notice.middle_name,
     notice.maiden_name,
     notice.last_name
   ].filter(Boolean);
-  const name = nameParts.join(" ");
+  const name = isCondolence && notice.organization_name 
+    ? notice.organization_name 
+    : nameParts.join(" ");
 
-  const age = calculateAge(notice.dob, notice.dop);
-  const dates = formatYearRange(notice.dob, notice.dop);
-  const eventDate = formatDate(notice.event_date);
+  const age = isCondolence ? null : calculateAge(notice.dob, notice.dop);
+  const dates = isCondolence ? "" : formatYearRange(notice.dob, notice.dop);
+  const eventDate = isCondolence ? "" : formatDate(notice.event_date);
   const noticeTypeLabel = getNoticeTypeLabel(notice.notice_type);
   const noticeTypeColor = getNoticeTypeColor(notice.notice_type);
 
-  const description = notice.notice_type === "death_notice" 
+  const description = notice.notice_type === "condolence"
     ? (notice.obituary || "")
-    : (notice.announcement || "");
+    : notice.notice_type === "death_notice" 
+      ? (notice.obituary || "")
+      : (notice.announcement || "");
 
   const imageSrc = photoUrl || getPlaceholderImage(notice.notice_type);
 
@@ -231,47 +242,55 @@ export function NoticeDetail() {
 
             {/* Text Content Section */}
             <div className="p-6 flex flex-col">
-              <h1 className="text-2xl text-[#0f172a] mb-3 font-semibold">{name}</h1>
+              {!isCondolence && (
+                <h1 className="text-2xl text-[#0f172a] mb-3 font-semibold">{name}</h1>
+              )}
 
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  {dates && (
-                    <p className="text-base text-slate-600 mb-2">{dates}</p>
-                  )}
-                  {age !== null && (
-                    <Badge
-                      variant="outline"
-                      className="border-[#0f172a] text-[#0f172a] text-sm px-2 py-0.5"
-                    >
-                      Age {age}
-                    </Badge>
-                  )}
+              {!isCondolence && (
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    {dates && (
+                      <p className="text-base text-slate-600 mb-2">{dates}</p>
+                    )}
+                    {age !== null && (
+                      <Badge
+                        variant="outline"
+                        className="border-[#0f172a] text-[#0f172a] text-sm px-2 py-0.5"
+                      >
+                        Age {age}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div className="space-y-2 mb-4 text-slate-600">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span className="text-sm">{notice.location}</span>
+              {!isCondolence && (
+                <div className="space-y-2 mb-4 text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span className="text-sm">{notice.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    <span className="text-sm">{eventDate}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span className="text-sm">{eventDate}</span>
-                </div>
-              </div>
+              )}
 
               {description && (
                 <div className="mb-4">
-                  <h2 className="text-lg text-[#0f172a] mb-2 font-semibold">
-                    {notice.notice_type === "death_notice" ? "Obituary / Tribute" : "Announcement Details"}
-                  </h2>
-                  <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                  {!isCondolence && (
+                    <h2 className="text-lg text-[#0f172a] mb-2 font-semibold">
+                      {notice.notice_type === "death_notice" ? "Obituary / Tribute" : "Announcement Details"}
+                    </h2>
+                  )}
+                  <p className={`${isCondolence ? 'text-base' : 'text-sm'} text-slate-700 leading-relaxed whitespace-pre-wrap`}>
                     {description}
                   </p>
                 </div>
               )}
 
-              {notice.event_details && (
+              {!isCondolence && notice.event_details && (
                 <div className="bg-slate-50 rounded-lg p-4 mb-4">
                   <h2 className="text-lg text-[#0f172a] mb-2 font-semibold">
                     {notice.notice_type === "death_notice" ? "Funeral Service Details" : "Event Details"}
@@ -282,7 +301,14 @@ export function NoticeDetail() {
                 </div>
               )}
 
-              {notice.relationship && (
+              {isCondolence && notice.organization_name ? (
+                <div className="mt-auto pt-4 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">
+                    <span className="font-semibold">Posted by: </span>
+                    <span className="text-[#0f172a] font-medium">{notice.organization_name}</span>
+                  </div>
+                </div>
+              ) : !isCondolence && notice.relationship && (
                 <div className="text-xs text-slate-600 mb-4">
                   <span className="font-semibold">Posted by: </span>
                   {notice.relationship}
