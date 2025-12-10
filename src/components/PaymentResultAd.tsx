@@ -180,10 +180,10 @@ const PaymentResultAd = () => {
     </div>
 
     <div class="receipt-info">
-        ${paymentData.name ? `
+        ${companyName ? `
         <div class="info-row">
             <span class="info-label">Company Name:</span>
-            <span class="info-value">${paymentData.name}</span>
+            <span class="info-value">${companyName}</span>
         </div>
         ` : ''}
         ${(paymentData.total) ? `
