@@ -15,6 +15,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 import PaymentResult from "./components/PaymentResult";
 import PaymentResultAd from "./components/PaymentResultAd";
+import ManageAds from "./components/ManageAds";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>("home");
@@ -30,7 +31,7 @@ export default function App() {
           <Route path="/notice/:id" element={<NoticeDetail />} />
           <Route path="/services" element={<Services />} />
           {/* <Route path="/advertise" element={<Advertisements />} /> */}
-          {/* <Route path="/manage_ads" element={<ManageAds />} /> */}
+          <Route path="/manage_ads" element={<ManageAds />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/auth" element={<AuthenticationPage />} />
           <Route path="/dashboard" element={<Dashboard />} />

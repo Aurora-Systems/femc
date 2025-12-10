@@ -10,7 +10,7 @@ import { User } from "../schemas/userSchema";
 import { Notice } from "../schemas/noticeSchema";
 import Ad from "../schemas/adSchema";
 import { toast } from "sonner";
-import { Edit2, Save, X, Trash2, Upload, FileImage } from "lucide-react";
+import { Edit2, Save, X, Trash2, Upload, FileImage, CheckCircle2 } from "lucide-react";
 import { NoticeCard } from "./NoticeCard";
 import moment from "moment";
 import { v4 } from "uuid";
@@ -676,9 +676,11 @@ export default function Dashboard() {
             </Button>
             {
               user.is_admin && (
-                <Button onClick={() => navigate("/manage_ads")}>
-                  Manage Ads
-                </Button>
+                <>
+                  <Button onClick={() => navigate("/manage_ads")} variant="outline">
+                    Manage Ads
+                  </Button>
+                </>
               )
             }
             <Button variant="outline" onClick={handleSignOut}>
