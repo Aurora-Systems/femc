@@ -4,11 +4,13 @@ import { routes } from "../init/server";
 import axios from "axios";
 import { Loader2, Download } from "lucide-react";
 import { Button } from "./ui/button";
+import db from "../init/db";
 
 interface PaymentData {
     paid: boolean;
     total: number;
     message: string;
+    [key: string]: any;
 }
 
 const PaymentResultAd = () => {
@@ -18,8 +20,34 @@ const PaymentResultAd = () => {
     const [paid, setPaid] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
+    const [companyName, setCompanyName] = useState<string | null>(null);
 
     const navigate = useNavigate();
+    
+    const fetchUserCompanyName = async () => {
+        try {
+            const { data: { session } } = await db.auth.getSession();
+            if (!session) return;
+
+            const { data: profile, error } = await db
+                .from("users")
+                .select("organization_name")
+                .eq("user_id", session.user.id)
+                .single();
+
+            if (error) {
+                console.error("Error fetching user profile:", error);
+                return;
+            }
+
+            if (profile && profile.organization_name) {
+                setCompanyName(profile.organization_name);
+            }
+        } catch (error) {
+            console.error("Error fetching company name:", error);
+        }
+    };
+
     const check_payment_status = async () => {
         setLoading(true);
         setError(null);
@@ -34,6 +62,10 @@ const PaymentResultAd = () => {
         
         setReferenceExists(true);
         setReferenceNumber(reference_number);
+        
+        // Fetch user company name from database
+        await fetchUserCompanyName();
+        
         const req = await axios.get(`${routes.check_ad_status}${reference_number}`);
         if (req.status === 200) {
                 if(req.data.paid){
@@ -148,6 +180,12 @@ const PaymentResultAd = () => {
     </div>
 
     <div class="receipt-info">
+        ${paymentData.name ? `
+        <div class="info-row">
+            <span class="info-label">Company Name:</span>
+            <span class="info-value">${paymentData.name}</span>
+        </div>
+        ` : ''}
         ${(paymentData.total) ? `
         <div class="info-row">
             <span class="info-label">Amount Paid:</span>
