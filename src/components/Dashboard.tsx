@@ -505,7 +505,8 @@ export default function Dashboard() {
   };
 
   const handleCreateAd = async () => {
-    if (!selectedTier) {
+    // Payment tier is only required when creating a new ad, not when editing
+    if (!editingAdId && !selectedTier) {
       toast.error("Please select a payment tier");
       return;
     }
