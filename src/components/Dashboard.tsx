@@ -836,7 +836,6 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">

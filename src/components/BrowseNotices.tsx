@@ -121,6 +121,8 @@ export function BrowseNotices() {
       const { data, error } = await db
         .from("ads")
         .select("*")
+        .eq("active", true)
+        .eq("status", "approved")
         .gte("expires", today) // Only get ads that haven't expired
         .order("id", { ascending: false });
 
@@ -527,9 +529,9 @@ export function BrowseNotices() {
                   </CarouselContent>
                 </Carousel>
               ) : (
-                <div onClick={() => navigate("/contact")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer">
+                <div onClick={() => navigate("/dashboard/#ads")} className="w-full h-32 bg-gradient-to-r from-slate-100 to-slate-200 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 cursor-pointer">
                   <div className="text-center p-4">
-                    <p className="text-lg font-semibold text-[#0f172a] mb-1">Contact us to advertise here</p>
+                    <p className="text-lg font-semibold text-[#0f172a] mb-1">Click here to advertise on this space</p>
                     <p className="text-sm text-slate-600">Reach thousands of visitors</p>
                   </div>
                 </div>
