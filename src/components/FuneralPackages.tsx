@@ -36,7 +36,7 @@ export function FuneralPackages() {
         "plus lots and lots of other items"
       ],
       description: "Practically everything that is needed for a funeral event",
-      price: "US$1.00",
+      price: "US$2800.00",
       deposit: "50% refundable deposit required"
     },
     {
@@ -56,7 +56,7 @@ export function FuneralPackages() {
         "plus lots and lots of other items"
       ],
       description: "Practically everything that is needed for a funeral event",
-      price: "US$1.00",
+      price: "US$2500.00",
       deposit: "50% refundable deposit required"
     }
   ];
@@ -77,7 +77,7 @@ export function FuneralPackages() {
         "plus lots and lots of other items"
       ],
       description: "Practically everything you need for memorial & Tombstone unveiling events",
-      price: "US$1.00",
+      price: "US$1600.00",
       deposit: "50% refundable deposit required"
     },
     {
@@ -93,7 +93,7 @@ export function FuneralPackages() {
         "plus lots and lots of other items"
       ],
       description: "Practically everything you need for memorial service & Tombstone unveiling events",
-      price: "US$1.00",
+      price: "US$1500.00",
       deposit: "50% refundable deposit required"
     }
   ];
@@ -294,7 +294,7 @@ export function FuneralPackages() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
               onClick={() => handleWhatsApp("", "General Inquiry")}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-white text-[#0f172a] hover:bg-slate-100"
             >
               <MessageCircle className="h-4 w-4 mr-2" />
               WhatsApp Us
