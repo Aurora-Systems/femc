@@ -107,14 +107,16 @@ export function NoticePreview({ noticeData, onClose, onConfirm, isSubmitting = f
                   {[
                     noticeData.firstName,
                     noticeData.middleName,
-                    noticeData.nickname && `"${noticeData.nickname}"`,
-                    noticeData.lastName
+                    noticeData.maidenName && `"${noticeData.maidenName}"`,
+                    noticeData.lastName,
+                    noticeData.nickname && `(${noticeData.nickname})`,
+
                   ].filter(Boolean).join(" ")}
-                  {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
+                  {/* {noticeData.maidenName && noticeData.maidenName !== noticeData.lastName && (
                     <span className="text-slate-600 font-normal">
-                      {" "}(née {noticeData.maidenName})
+                      {" "}({noticeData.maidenName})
                     </span>
-                  )}
+                  )} */}
                 </h3>
               )}
               <div className="flex items-start justify-between mb-4">

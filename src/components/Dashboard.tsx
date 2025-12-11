@@ -121,16 +121,25 @@ export default function Dashboard() {
       }
 
       // Transform notices to match NoticeCard format
-      const transformedNotices = data.map((notice: Notice & { id?: number; tribute?: number }, index: number) => {
-        const nameParts = [
-          notice.first_name,
-          notice.middle_name,
-          notice.maiden_name,
-          notice.last_name
-        ].filter(Boolean);
-        const name = nameParts.join(" ");
+      const transformedNotices = data.map((notice: Notice & { id?: number; tribute?: number; organization_name?: string | null }, index: number) => {
+        // For condolence notices, use organization_name as the name
+        const isCondolence = notice.notice_type === "condolence";
+        
+        let name: string;
+        if (isCondolence && notice.organization_name) {
+          name = notice.organization_name;
+        } else {
+          // Build full name from name parts
+          const nameParts = [
+            notice.first_name,
+            notice.middle_name,
+            notice.maiden_name,
+            notice.last_name
+          ].filter(Boolean);
+          name = nameParts.join(" ");
+        }
 
-        // Calculate age
+        // Calculate age (not applicable for condolence notices)
         const calculateAge = (birthDate: string, passedDate: string | null): number | null => {
           if (!birthDate || !passedDate) return null;
           try {
@@ -147,9 +156,9 @@ export default function Dashboard() {
           }
         };
 
-        const age = calculateAge(notice.dob, notice.dop);
+        const age = isCondolence ? 0 : calculateAge(notice.dob, notice.dop);
 
-        // Format dates
+        // Format dates (not applicable for condolence notices)
         const formatDate = (dateString: string): string => {
           if (!dateString) return "";
           try {
@@ -178,16 +187,21 @@ export default function Dashboard() {
           }
         };
 
-        const dates = formatYearRange(notice.dob, notice.dop);
-        const date = formatDate(notice.event_date);
+        const dates = isCondolence ? "" : formatYearRange(notice.dob, notice.dop);
+        const date = isCondolence ? "" : formatDate(notice.event_date);
 
         // Get description
-        const description = notice.notice_type === "death_notice" 
+        // For condolence notices, obituary contains the condolence text
+        // For death notices, obituary contains the obituary
+        // For others, announcement contains the announcement
+        const description = notice.notice_type === "condolence"
           ? (notice.obituary || "")
-          : (notice.announcement || "");
+          : notice.notice_type === "death_notice" 
+            ? (notice.obituary || "")
+            : (notice.announcement || "");
 
-        // Get service details
-        const service = notice.event_details || "Service details to be announced";
+        // Get service details (not applicable for condolence notices)
+        const service = isCondolence ? "" : (notice.event_details || "Service details to be announced");
 
         // Get photo URL
         const getPhotoUrl = (photoId: string | null): string | null => {
@@ -210,7 +224,7 @@ export default function Dashboard() {
           name,
           age: age || 0,
           dates,
-          location: notice.location,
+          location: isCondolence ? "" : notice.location,
           date,
           description,
           service,
