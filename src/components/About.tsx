@@ -454,7 +454,12 @@ export function About() {
           </div>
           <div className="text-center">
             <Button
-              onClick={() => navigate("browse")}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setTimeout(() => {
+                  navigate("browse");
+                }, 100);
+              }}
               className="bg-[#0f172a] hover:bg-[#1e3a5f] px-8 py-6 text-lg"
             >
               View More Notices
