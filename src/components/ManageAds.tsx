@@ -422,7 +422,7 @@ export default function ManageAds() {
         )}
 
         {/* Filter buttons */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2  grid grid-cols-2 md:grid-cols-4 flex-wrap">
           <Button
             variant={filterStatus === "all" ? "default" : "outline"}
             onClick={() => setFilterStatus("all")}

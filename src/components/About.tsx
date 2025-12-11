@@ -544,7 +544,7 @@ export function About() {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-white/10 border-white/20 backdrop-blur hover:bg-white/15 transition-all">
-                <div className="p-8 text-center">
+                <div className="py-8 text-center">
                   <div className="bg-white/20 rounded-full p-4 w-fit mx-auto mb-4">
                     <Phone className="h-8 w-8 text-white" />
                   </div>
@@ -558,13 +558,13 @@ export function About() {
                     className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg"
                     onClick={() => navigate("/contact")}
                   >
-                    <Phone className="h-4 w-4 mr-2" />
+                    <Phone className="h-4 w-4 " />
                     {contactDetails.phone}
                   </Button>
                 </div>
               </Card>
               <Card className="bg-white/10 border-white/20 backdrop-blur hover:bg-white/15 transition-all">
-                <div className="p-8 text-center">
+                <div className="py-8 text-center">
                   <div className="bg-white/20 rounded-full p-4 w-fit mx-auto mb-4">
                     <Mail className="h-8 w-8 text-white" />
                   </div>
@@ -576,7 +576,7 @@ export function About() {
                     className="bg-white text-[#0f172a] hover:bg-slate-100 shadow-lg"
                     onClick={() => navigate("/contact")}
                   >
-                    <Mail className="h-4 w-4 mr-2" />
+                    <Mail className="h-4 w-4 " />
                     {contactDetails.email}
                   </Button>
                 </div>
