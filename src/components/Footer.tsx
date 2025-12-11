@@ -61,6 +61,11 @@ export function Footer() {
                   Services
                 </button>
               </li>
+              <li>
+                <button onClick={() => navigate("funeral-packages")} className="hover:text-white transition-colors">
+                  Funeral Packages
+                </button>
+              </li>
             </ul>
           </div>
           

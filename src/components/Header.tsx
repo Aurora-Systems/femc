@@ -149,7 +149,7 @@ export function Header() {
                 onClick={() => navigate(isOnboarded ? "/dashboard" : "/auth")}
                 className="bg-white border-white text-black hover:bg-[#0f172a] hover:text-white"
               >
-                <User className="h-4 w-4 mr-2" />
+                <User className="h-4 w-4" />
                 <span className="hidden sm:inline">
                   {isChecking ? "..." : isOnboarded ? "Dashboard" : "Sign In"}
                 </span>

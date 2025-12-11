@@ -546,9 +546,9 @@ export function About() {
               <Card className="bg-white/10 border-white/20 backdrop-blur hover:bg-white/15 transition-all">
                 <div className="p-8 text-center">
                   <div className="bg-white/20 rounded-full p-4 w-fit mx-auto mb-4">
-                    <Phone className="h-8 w-8" />
+                    <Phone className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl mb-2">
+                  <h3 className="text-xl mb-2 text-white">
                     Phone Support
                   </h3>
                   <p className="text-slate-200 text-sm mb-4">
@@ -566,9 +566,9 @@ export function About() {
               <Card className="bg-white/10 border-white/20 backdrop-blur hover:bg-white/15 transition-all">
                 <div className="p-8 text-center">
                   <div className="bg-white/20 rounded-full p-4 w-fit mx-auto mb-4">
-                    <Mail className="h-8 w-8" />
+                    <Mail className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl mb-2">Email Us</h3>
+                  <h3 className="text-xl mb-2 text-white">Email Us</h3>
                   <p className="text-slate-200 text-sm mb-4">
                     We'll respond within 24 hours
                   </p>
