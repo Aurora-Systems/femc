@@ -177,19 +177,25 @@ export default function ManageAds() {
 
     setIsDeleting(true);
     try {
-      const { error,data } = await db
+      const { error, data } = await db
         .from("ads")
         .delete()
-        .eq("id", adId);
-        console.log(error);
-        console.log(data);
+        .eq("id", adId)
+        .select();
+
       if (error) {
         throw new Error(error.message || "Failed to delete ad");
+      }
+
+      // Check if any rows were actually deleted
+      if (!data || data.length === 0) {
+        throw new Error("Ad not found or could not be deleted. You may not have permission to delete this ad.");
       }
 
       toast.success("Ad deleted successfully!");
       await fetchAds();
     } catch (error: any) {
+      console.error("Error deleting ad:", error);
       toast.error(error.message || "Failed to delete ad");
     } finally {
       setIsDeleting(false);
@@ -354,7 +360,7 @@ export default function ManageAds() {
                     id="active"
                     checked={editedActive}
                     onChange={(e) => setEditedActive(e.target.checked)}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    className="h-4 w-4 mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     disabled={editedStatus !== "approved"}
                   />
                   <Label htmlFor="active" className="cursor-pointer">
@@ -369,7 +375,7 @@ export default function ManageAds() {
 
                 {/* Rejection Reason */}
                 {editedStatus === "rejected" && (
-                  <div className="col-span-2">
+                  <div className="col-span-2 ">
                     <Label htmlFor="rejection_reason">Rejection Reason *</Label>
                     <Textarea
                       id="rejection_reason"
@@ -509,7 +515,7 @@ export default function ManageAds() {
                     </div>
 
                     {ad.status === "rejected" && ad.rejection_reason && (
-                      <div className="p-2 bg-red-50 border border-red-200 rounded-md">
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-md">
                         <p className="text-xs font-medium text-red-800 mb-1">Rejection Reason:</p>
                         <p className="text-xs text-red-700">{ad.rejection_reason}</p>
                       </div>
@@ -532,14 +538,14 @@ export default function ManageAds() {
                         <Eye className="h-4 w-4 mr-2" />
                         {selectedAd?.id === ad.id ? "Currently Reviewing" : "Review"}
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDelete(ad.id!)}
                         disabled={isDeleting}
                       >
                         <Trash2 className="h-4 w-4" />
-                      </Button>
+                      </Button> */}
                     </div>
                   </div>
                 </CardContent>
