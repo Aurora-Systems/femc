@@ -611,7 +611,7 @@ export function PlaceNotice() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div>
-                    <Label htmlFor="location">Location *</Label>
+                    <Label htmlFor="location">{noticeType === "death_notice" ? "Location *" : "Event Location *"}</Label>
                     <Input
                       id="location"
                       placeholder="City or Town"
@@ -728,14 +728,14 @@ export function PlaceNotice() {
                     <Label htmlFor="obituary">
                       {noticeType === "death_notice"
                         ? "Obituary / Tribute *"
-                        : "Announcement Details *"}
+                        : "Announcement Details (can include mini obituary)*"}
                     </Label>
                     <Textarea
                       id="obituary"
                       placeholder={
                         noticeType === "death_notice"
                           ? "Share memories and details about your loved one..."
-                          : "Provide details about the event..."
+                          : "Share announcement, memories and details about your loved one..."
                       }
                       className="mt-1 min-h-[150px]"
                       value={formData.obituary}

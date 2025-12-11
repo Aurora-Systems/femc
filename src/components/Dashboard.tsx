@@ -838,6 +838,7 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        {user.organization && <>
         <Card>
           <CardHeader>
             <div className="flex justify-between items-center">
@@ -1087,6 +1088,7 @@ export default function Dashboard() {
             )}
           </CardContent>
         </Card>
+        </>}
 
         <Card>
           <CardHeader>
@@ -1099,12 +1101,13 @@ export default function Dashboard() {
                 Loading notices...
               </div>
             ) : userNotices.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <p className="mb-4">You haven't placed any notices yet.</p>
-                <Button onClick={() => navigate("/place")}>
-                  Place a Notice
-                </Button>
-              </div>
+              <></>
+              // <div className="text-center py-8 text-muted-foreground">
+              //   <p className="mb-4">You haven't placed any notices yet.</p>
+              //   <Button onClick={() => navigate("/place")}>
+              //     Place a Notice
+              //   </Button>
+              // </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {userNotices.map((notice) => (

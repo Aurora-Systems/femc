@@ -197,8 +197,9 @@ export function About() {
             const nameParts = [
               notice.first_name,
               notice.middle_name,
-              notice.maiden_name,
-              notice.last_name
+              notice.maiden_name && `"${notice.maiden_name}"`,
+              notice.last_name,
+              notice.nickname && `(${notice.nickname})`
             ].filter(Boolean);
             name = nameParts.join(" ");
           }
@@ -283,8 +284,9 @@ export function About() {
             const nameParts = [
               notice.first_name,
               notice.middle_name,
-              notice.maiden_name,
-              notice.last_name
+              notice.maiden_name && `"${notice.maiden_name}"`,
+              notice.last_name,
+              notice.nickname && `"(${notice.nickname})"`,
             ].filter(Boolean);
             name = nameParts.join(" ");
           }
