@@ -177,11 +177,12 @@ export default function ManageAds() {
 
     setIsDeleting(true);
     try {
-      const { error } = await db
+      const { error,data } = await db
         .from("ads")
         .delete()
         .eq("id", adId);
-
+        console.log(error);
+        console.log(data);
       if (error) {
         throw new Error(error.message || "Failed to delete ad");
       }
