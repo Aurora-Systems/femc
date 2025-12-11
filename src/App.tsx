@@ -16,6 +16,7 @@ import { Toaster } from "./components/ui/sonner";
 import PaymentResult from "./components/PaymentResult";
 import PaymentResultAd from "./components/PaymentResultAd";
 import ManageAds from "./components/ManageAds";
+import { FuneralPackages } from "./components/FuneralPackages";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<string>("home");
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/browse" element={<BrowseNotices />} />
           <Route path="/notice/:id" element={<NoticeDetail />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/funeral-packages" element={<FuneralPackages />} />
           {/* <Route path="/advertise" element={<Advertisements />} /> */}
           <Route path="/manage_ads" element={<ManageAds />} />
           <Route path="/contact" element={<Contact />} />

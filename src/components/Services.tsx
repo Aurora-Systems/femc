@@ -36,7 +36,7 @@ const services = [
     title: "Funeral Services & Equipment Hire",
     description: "Comprehensive funeral services including equipment rental, venue arrangements, and all necessary items for funeral ceremonies and memorial services.",
     features: ["Equipment rental", "Venue arrangements", "Catering services", "Transportation", "Audio/visual equipment", "Decoration services"],
-    link: `https://wa.me/${contactDetails.phone}?text=Good day can i get information on funeral service and equipment hiring services?`,
+    link: `/funeral-packages`,
     buttonText: "Learn more"
   },
   // {

@@ -18,6 +18,7 @@ export function Header() {
     { label: "Place a Notice", path: "place" },
     { label: "Browse Notices", path: "browse" },
     { label: "Services", path: "services" },
+    { label: "Funeral Packages", path: "funeral-packages" },
   ];
 
   const handleNavClick = (path: string) => {
@@ -111,9 +112,9 @@ export function Header() {
                 alt="Funeral Notices Logo"
                 className="h-8 w-auto"
               />
-              <div>
+              {/* <div>
                 <h1 className="text-xl">Funeral Notices</h1>
-              </div>
+              </div> */}
             </div>
             
             <nav className="hidden md:flex items-center gap-6">
