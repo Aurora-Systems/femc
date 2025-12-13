@@ -280,16 +280,16 @@ export function PlaceNotice() {
     // Automatically set account type based on user's organization status
     if (profile.organization) {
       setAccountType("corporate");
-      set_total(0.01)
-      // set_total(19.99);
+      // set_total(0.01)
+      set_total(19.99);
       // Set organization name in form data for condolence notices
       if (profile.organization_name) {
         setFormData(prev => ({ ...prev, organizationName: profile.organization_name }));
       }
     } else {
       setAccountType("individual");
-      // set_total(9.99)
-      set_total(0.01);
+      set_total(9.99)
+      // set_total(0.01);
     }
     setIsOnboarded(true);
   }
