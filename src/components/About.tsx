@@ -370,6 +370,12 @@ export function About() {
           </div>
         </div>
       </div>
+      <div className="container mx-auto py-4 flex justify-center items-center text-center" >
+        <div className="flex justify-center items-center">
+        <img src="https://funeralnotices.sirv.com/File.jpg" width={"50%"} alt="Funeral Service" className="h-auto" />
+
+        </div>
+      </div>
 
       <div className="container mx-auto px-4 py-12">
         {/* Stats Section */}
