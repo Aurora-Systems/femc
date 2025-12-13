@@ -103,7 +103,7 @@ export function FuneralPackages() {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-12 text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl text-[#0f172a] mb-4">Funeral Event Packages</h1>
+          <h1 className="text-4xl text-[#0f172a] mb-4">Funeral Event Equipment Packages</h1>
           <p className="text-lg text-slate-600">
             Comprehensive packages designed to meet all your funeral and memorial service needs
           </p>
@@ -161,7 +161,7 @@ export function FuneralPackages() {
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-8">
             <Package className="h-8 w-8 text-[#0f172a]" />
-            <h2 className="text-3xl text-[#0f172a] font-bold">Funeral Event Packages</h2>
+            <h2 className="text-3xl text-[#0f172a] font-bold">Funeral Event Equipment  Packages</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
