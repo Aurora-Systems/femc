@@ -140,7 +140,7 @@ export function FuneralPackages() {
                 </div>
                 <ul className="space-y-1 text-sm text-slate-700">
                   <li>• Funeral packages: Maximum 500 people</li>
-                  <li>• Memorial & Tombstone Unveiling: Maximum 300 people</li>
+                  <li>• Memorial & Tombstone Unveiling: Maximum 500 people</li>
                 </ul>
               </div>
             </div>

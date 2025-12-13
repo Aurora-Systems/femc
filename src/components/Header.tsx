@@ -18,7 +18,7 @@ export function Header() {
     { label: "Place a Notice", path: "place" },
     { label: "Browse Notices", path: "browse" },
     { label: "Services", path: "services" },
-    { label: "Funeral Packages", path: "funeral-packages" },
+    { label: "Funeral Event Equipment Packages", path: "funeral-packages" },
   ];
 
   const handleNavClick = (path: string) => {
